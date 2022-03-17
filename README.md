@@ -7,4 +7,6 @@ https://github.com/mike4192/spotMicro
 
 Furthermore, I decided to work with hobby mini servos like MG92B. They are affordable, sufficient as proof of concept, and if everything goes well you can still realize a big dog.
 
-OS: Ubuntu 20.04
+OS: ubuntu-20.04.4-preinstalled-server-arm64+raspi.img.xz
+
+
