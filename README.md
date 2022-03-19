@@ -25,6 +25,6 @@ trust A4:AE:11:DE:4E:BB
 
 apt-get install lxde
 
-
+apt install libgl1-mesa-glx
 
 
