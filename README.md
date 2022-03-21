@@ -27,4 +27,11 @@ apt-get install lxde
 
 apt install libgl1-mesa-glx
 
+sudo apt install python3-pip
+sudo pip3 install adafruit-pca9685
+sudo chown :i2c /dev/i2c-1
+sudo chmod g+rw /dev/i2c-1
+
+sudo apt install i2c-tools
+
 
