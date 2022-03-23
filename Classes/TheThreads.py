@@ -21,11 +21,11 @@ class MyThread(threading.Thread):
         
         servopin = self.args[0]
         #servorot = self.args[1]
-        angle = self.args[1]
+        angle_degrees = self.args[1]
         caller = self.args[2]
         transition = self.args[3]
         
-        caller.move(servopin, angle, transition)
+        caller.move(servopin, angle_degrees, transition)
         
         return
     
