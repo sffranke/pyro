@@ -8,6 +8,8 @@ https://github.com/mike4192/spotMicro
 
 Furthermore, I decided to work with hobby mini servos like MG92B. They are affordable, sufficient as proof of concept, and if everything goes well you can still realize a big dog.
 
+*Setup*  
+
 OS: ubuntu-20.04.4-preinstalled-server-arm64+raspi.img.xz
 
 apt-get update; apt-get upgrade
@@ -36,4 +38,4 @@ sudo chmod g+rw /dev/i2c-1
 
 sudo apt install i2c-tools
 
-
+sudo pip3 install configparser

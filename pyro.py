@@ -6,6 +6,11 @@ from Classes.TheThreads import MyThread
 from math import sin, cos, pi, sqrt
 from pyPS4Controller.controller import Controller
 
+import configparser
+import io
+import os
+configfile_name = "config.ini"
+
 class Servo:
     def __init__(self, name, servopin, minangle, maxangle, center_pwm, center_degrees, transition, transitionspeed, servorotation, area):
         self.__name = name
@@ -22,6 +27,9 @@ class Servo:
         self.pwm.set_pwm_freq(60)
         self.__servostatus = 0
 
+    def SetCenterPWM(self, i, newStatus):
+        self.__center_pwm = newStatus
+        
     def GetStatus(self):
         return self.__servostatus
 
@@ -154,10 +162,74 @@ def test():
     pyrothred_TIBIA_FRONT_LEFT.start()
     
 def release():
-    for i in range(len(servos)):  #16 
+    for i in range(len(servos)):
         servos[i].pwm.set_pwm(i, 0, 0)
+        
+def calibrate():
+    for i in range(len(servos)): 
+        servos[i].pwm.set_pwm(i, 0, 0)
+        print (    "Coxa_LF -> 0,  Femur_LF-> 4,  Tibia_LF-> 8")
+        print (    "Coxa_RF -> 1,  Femur_RF-> 5,  Tibia_RF-> 9")
+        print (    "Coxa_RR -> 2,  Femur_RR-> 6,  Tibia_RR-> 10")
+        print (    "Coxa_LR -> 3,  Femur_LR-> 7,  Tibia_LR-> 11")
+        
+        print("Status: " ,servos[i].GetStatus())
+        # Check if there is already a configurtion file
+        if not os.path.isfile(configfile_name):
+            # Create the configuration file as it doesn't exist yet
+            cfgfile = open(configfile_name, 'w')
 
-arg = sys.argv[1]
+            # Add content to the file
+            Config = configparser.ConfigParser()
+            Config.add_section("LF")
+            Config.set("LF", "Coxa-center", "306")
+            Config.set("LF", "Femur-center", "306")
+            Config.set("LF", "Tibia-center", "306")
+            Config.add_section("RF")
+            Config.set("RF", "Coxa-center", "306")
+            Config.set("RF", "Femur-center", "306")
+            Config.set("RF", "Tibia-center", "306")
+            Config.add_section("RR")
+            Config.set("RR", "Coxa-center", "306")
+            Config.set("RR", "Femur-center", "306")
+            Config.set("RR", "Tibia-center", "306")
+            Config.add_section("RL")
+            Config.set("RL", "Coxa-center", "306")
+            Config.set("RL", "Femur-center", "306")
+            Config.set("RL", "Tibia-center", "306")        
+           
+            Config.write(cfgfile)
+            cfgfile.close()
+            
+    # Load the configuration file
+    with open("config.ini") as f:
+        sample_config = f.read()
+    config = configparser.RawConfigParser(allow_no_value=True)
+    config.readfp(io.StringIO(sample_config))
+	
+    '''
+    # List all contents
+    print("List all contents")
+    for section in config.sections():
+        print("Section: %s" % section)
+        for options in config.options(section):
+            print("x %s:::%s:::%s" % (options,
+                                      config.get(section, options),
+                                      str(type(options))))
+    '''
+    # Print some contents
+    print("\nPrint some contents")
+    print(config.get("LF", "Coxa-center"))
+    servos[1].SetCenterPWM(1, int(config.get("LF", "Coxa-center")))
+
+
+arg=sys.argv[1]
+
+'''
+if len(sys.argv) >2:
+    limb = sys.argv[2]
+'''
+
 if arg=="i":
     initialize()
 
@@ -167,10 +239,14 @@ if arg=="r":
 if arg=="t":
     initialize()
     test()
+    
+if arg=="c":
+    initialize()
+    calibrate()
 
 def joyleft(self, value):
-	
-	# 0 - 32767
+    
+    # 0 - 32767
     para = int( value*Coxa_LF.GetArea()/32767)
     pyrothred_FEMUR_FRONT_LEFT = MyThread(target=servo.move, args=(Coxa_LF.GetServopin(), para, Coxa_LF, 0 ))
     pyrothred_FEMUR_FRONT_LEFT.start()
@@ -178,8 +254,8 @@ def joyleft(self, value):
     pyrothred_FEMUR_FRONT_RIGHT.start()
     
 def joyright(self, value):
-	
-	# 0 - 32767
+    
+    # 0 - 32767
     para = int( value*Coxa_RF.GetArea()/32767)
     pyrothred_FEMUR_FRONT_LEFT = MyThread(target=servo.move, args=(Coxa_LF.GetServopin(), para, Coxa_LF, 0 ))
     pyrothred_FEMUR_FRONT_LEFT.start()
