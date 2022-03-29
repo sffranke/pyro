@@ -3,7 +3,7 @@ import sys
 import Adafruit_PCA9685
 import time
 from Classes.TheThreads import MyThread
-from math import sin, cos, pi, sqrt
+from math import cos, pi
 from pyPS4Controller.controller import Controller
 
 import configparser
@@ -27,13 +27,13 @@ class Servo:
         self.pwm.set_pwm_freq(60)
         self.__servostatus = 0
 
-    def SetCenterPWM(self, i, newStatus):
+    def SetCenterPWM(self, newStatus):
         self.__center_pwm = newStatus
         
     def GetStatus(self):
         return self.__servostatus
 
-    def SetStatus(self, i, newStatus):
+    def SetStatus(self, newStatus):
         self.__servostatus = newStatus
         
     def GetServopin(self):
@@ -52,18 +52,22 @@ class Servo:
         return self.__maxangle
         
     def ease_in_out_sine(self, current_time, start_value, change_in_value, duration):
-        calc = 1-change_in_value/2 * (cos(pi*current_time/duration) - 1) + start_value -1
+        calc = 1-change_in_value/2 * (cos(pi*current_time/duration) - 1) + start_value 
         #print("current_time: ",current_time, " start_value: ", start_value, " change_in_value: ",change_in_value," duration: ",duration, " calc: ",calc)
+        return int(calc)
+    
+    def ease_in_sine(self, current_time, start_value, change_in_value, duration):
+        """ sinusoidal easing in - accelerating from zero velocity """
+        calc = 1-change_in_value * cos(current_time / duration * (pi/2)) + change_in_value + start_value
         return int(calc)
                 
                 
-    def move(self, servopin, angle_pwm, transition):
-        angle_degrees = self.deg2pwm(angle_pwm, self.__servorotation)
+    def move(self, servopin, angle, transition):
+        angle_pwm = self.deg2pwm(angle, self.__servorotation)
         if transition == 0:
-            print ("angle: ",angle_pwm, " pin: ", servopin, self.__servorotation, " transition:", transition)
-        
+            #print ("angle: ",angle_pwm, " pin: ", servopin, self.__servorotation, " transition:", transition)
             
-            self.pwm.set_pwm(servopin, 1, angle_degrees)
+            self.pwm.set_pwm(servopin, 1, angle_pwm)
             
             #self.SetStatus(servopin, angle_degrees)
             #print ("Status: ", s.GetStatus() )
@@ -72,21 +76,25 @@ class Servo:
         
             sourcepos = self.GetStatus()
         
-            if(sourcepos == angle_degrees):
+            if(sourcepos == angle):
                 return
             
             start_time=time.time()
             
-            changeinVal = angle_degrees-sourcepos
+            changeinVal = angle-sourcepos
+            
+            
             while (time.time()-start_time) <= self.__transitionspeed:
-                angle = self.ease_in_out_sine(current_time=time.time()-start_time, 
+                angle = self.ease_in_sine(current_time=time.time()-start_time, 
                                       start_value=sourcepos, 
                                       change_in_value=changeinVal,
                                       duration=self.__transitionspeed)
-                angle_degrees = self.deg2pwm(angle_pwm, self.__servorotation)
-                self.pwm.set_pwm(servopin, 1, angle_degrees)
+                
+                angle_pwm = self.deg2pwm(angle, self.__servorotation)
+                print ("-> Angle: ",angle)
+                self.pwm.set_pwm(servopin, 1, angle_pwm)
             
-        self.SetStatus(servopin, angle_degrees)       
+        self.SetStatus(angle)       
         
         #print ("   Transitionangle: ",angle, " pwm: ",self.deg2pwm(angle, self.__servorotation))
         
@@ -108,12 +116,13 @@ class Servo:
 maxangle= 80
 minangle=-80
 center_pwm=306
+speed=0.25
 servos = [
-    Servo(name="Coxa_LF",  servopin=0, minangle=minangle, maxangle=maxangle, center_pwm=center_pwm, center_degrees=0, transition=0,  transitionspeed=1, servorotation=  1, area=45),
-    Servo(name="Femur_LF", servopin=1, minangle=minangle, maxangle=maxangle, center_pwm=center_pwm, center_degrees=0, transition=0,  transitionspeed=1, servorotation=  1, area=45),
-    Servo(name="Tibia_LF", servopin=2, minangle=minangle, maxangle=maxangle, center_pwm=center_pwm, center_degrees=0, transition=0,  transitionspeed=1, servorotation=  1, area=45),
+    Servo(name="Coxa_LF",  servopin=0, minangle=minangle, maxangle=maxangle, center_pwm=center_pwm, center_degrees=0, transition=0,  transitionspeed=speed, servorotation=  1, area=45),
+    Servo(name="Femur_LF", servopin=1, minangle=minangle, maxangle=maxangle, center_pwm=center_pwm, center_degrees=0, transition=0,  transitionspeed=speed, servorotation=  1, area=45),
+    Servo(name="Tibia_LF", servopin=2, minangle=minangle, maxangle=maxangle, center_pwm=center_pwm, center_degrees=0, transition=0,  transitionspeed=speed, servorotation=  1, area=45),
     
-    Servo(name="Coxa_RF",  servopin=3, minangle=minangle, maxangle=maxangle, center_pwm=center_pwm, center_degrees=0, transition=0,  transitionspeed=1, servorotation= -1, area=45),
+    Servo(name="Coxa_RF",  servopin=3, minangle=minangle, maxangle=maxangle, center_pwm=center_pwm, center_degrees=0, transition=0,  transitionspeed=speed, servorotation= -1, area=45),
     ]
     
 Coxa_LF  = servos[0] 
@@ -147,9 +156,18 @@ def test():
     transition=1
     pyrothred_COXA_FRONT_LEFT = MyThread(target=servo.move, args=(Coxa_LF.GetServopin(), Coxa_LF.GetCenterDegrees() , Coxa_LF, transition ))
     pyrothred_COXA_FRONT_LEFT.start()   
+    pyrothred_FEMUR_FRONT_LEFT = MyThread(target=servo.move, args=(Femur_LF.GetServopin(), 0 , Femur_LF, transition ))
+    pyrothred_FEMUR_FRONT_LEFT.start()
+    pyrothred_TIBIA_FRONT_LEFT = MyThread(target=servo.move, args=(Tibia_LF.GetServopin(), 0 , Tibia_LF, transition ))
+    pyrothred_TIBIA_FRONT_LEFT.start()
+    
+    time.sleep(2)
+    
+    pyrothred_COXA_FRONT_LEFT = MyThread(target=servo.move, args=(Coxa_LF.GetServopin(), Coxa_LF.GetCenterDegrees() , Coxa_LF, transition ))
+    pyrothred_COXA_FRONT_LEFT.start()   
     pyrothred_FEMUR_FRONT_LEFT = MyThread(target=servo.move, args=(Femur_LF.GetServopin(), 45 , Femur_LF, transition ))
     pyrothred_FEMUR_FRONT_LEFT.start()
-    pyrothred_TIBIA_FRONT_LEFT = MyThread(target=servo.move, args=(Tibia_LF.GetServopin(), -45 , Tibia_LF, transition ))
+    pyrothred_TIBIA_FRONT_LEFT = MyThread(target=servo.move, args=(Tibia_LF.GetServopin(), 45 , Tibia_LF, transition ))
     pyrothred_TIBIA_FRONT_LEFT.start()
     
     time.sleep(2)
@@ -158,8 +176,9 @@ def test():
     pyrothred_COXA_FRONT_LEFT.start()   
     pyrothred_FEMUR_FRONT_LEFT = MyThread(target=servo.move, args=(Femur_LF.GetServopin(), -45 , Femur_LF, transition ))
     pyrothred_FEMUR_FRONT_LEFT.start()
-    pyrothred_TIBIA_FRONT_LEFT = MyThread(target=servo.move, args=(Tibia_LF.GetServopin(), +45 , Tibia_LF, transition ))
+    pyrothred_TIBIA_FRONT_LEFT = MyThread(target=servo.move, args=(Tibia_LF.GetServopin(), -45 , Tibia_LF, transition ))
     pyrothred_TIBIA_FRONT_LEFT.start()
+    
     
 def release():
     for i in range(len(servos)):
@@ -206,7 +225,7 @@ def calibrate():
         sample_config = f.read()
     config = configparser.RawConfigParser(allow_no_value=True)
     config.readfp(io.StringIO(sample_config))
-	
+    
     '''
     # List all contents
     print("List all contents")
@@ -223,8 +242,8 @@ def calibrate():
     servos[1].SetCenterPWM(1, int(config.get("LF", "Coxa-center")))
 
 
-arg=sys.argv[1]
-
+#arg=sys.argv[1]
+arg = "t"
 '''
 if len(sys.argv) >2:
     limb = sys.argv[2]
@@ -237,7 +256,7 @@ if arg=="r":
     release()
 
 if arg=="t":
-    initialize()
+    #initialize()
     test()
     
 if arg=="c":
