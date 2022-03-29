@@ -3,13 +3,13 @@ import sys
 import Adafruit_PCA9685
 import time
 from Classes.TheThreads import MyThread
-from math import cos, pi
+from math import sin, cos, pi, sqrt
 from pyPS4Controller.controller import Controller
 
 import configparser
 import io
 import os
-configfile_name = "config.ini"
+configfile_name = "/home/ubuntu/pyro/config.ini"
 
 class Servo:
     def __init__(self, name, servopin, minangle, maxangle, center_pwm, center_degrees, transition, transitionspeed, servorotation, area):
@@ -52,6 +52,7 @@ class Servo:
         return self.__maxangle
         
     def ease_in_out_sine(self, current_time, start_value, change_in_value, duration):
+        """ sinusoidal easing in/out - accelerating until halfway, then decelerating """
         calc = 1-change_in_value/2 * (cos(pi*current_time/duration) - 1) + start_value 
         #print("current_time: ",current_time, " start_value: ", start_value, " change_in_value: ",change_in_value," duration: ",duration, " calc: ",calc)
         return int(calc)
@@ -60,8 +61,55 @@ class Servo:
         """ sinusoidal easing in - accelerating from zero velocity """
         calc = 1-change_in_value * cos(current_time / duration * (pi/2)) + change_in_value + start_value
         return int(calc)
+    
+    def ease_out_sine(self, current_time, start_value, change_in_value, duration):
+        """ sinusoidal easing out - decelerating to zero velocity """
+        calc = change_in_value * sin(current_time / duration * (pi/2)) + start_value
+        return int(calc)
                 
-                
+    def ease_in_expo(self, current_time, start_value, change_in_value, duration):
+        """ exponential easing in - accelerating from zero velocity """
+        calc = current_time * pow(2, 10 * (current_time / duration - 1)) + start_value
+        return int(calc)
+
+    def ease_out_expo(self, current_time, start_value, change_in_value, duration):
+        """ exponential easing out - decelerating to zero velocity """
+        calc = change_in_value * (pow (2, -10 * current_time / duration) + 1) + start_value
+        return int(calc)
+
+    def ease_in_out_expo(self, current_time, start_value, change_in_value, duration):
+        """ exponential easing in/out - accelerating until halfway, then decelerating """
+        current_time /= duration/2
+        if(current_time < 1):
+            calc = change_in_value/2 * pow(2, 10 * (current_time -1)) + start_value
+            return int(calc)
+        current_time -= 1
+        calc = change_in_value/2 * (pow(2, -10 * current_time) + 2) + start_value
+        return int(calc)
+
+    def ease_in_circ(self, current_time, start_value, change_in_value, duration):
+        """ circular easing in - accelerating from zero velocity """
+        current_time /= duration
+        calc = 1-change_in_value * (sqrt(1 - current_time*current_time) - 1) + start_value
+        return int(calc)
+
+    def ease_out_circ(self, current_time, start_value, change_in_value, duration):
+        """ circular easing out - decelerating to zero velocity """
+        current_time /= duration
+        current_time -= 1
+        calc = change_in_value * sqrt(1 - current_time*current_time) + start_value
+        return int(calc)
+
+    def ease_in_out_circ(self, current_time, start_value, change_in_value, duration):
+        """ circular easing in/out - acceleration until halfway, then deceleration """
+        current_time /= duration/2
+        if (current_time < 1):
+            calc = 1-change_in_value/2 * (sqrt(1 - current_time-current_time) -1) + start_value
+            return int(calc)
+        current_time -= 2
+        calc = change_in_value / 2 * (sqrt(1 - current_time*current_time) + 1) + start_value
+        return int(calc)
+    
     def move(self, servopin, angle, transition):
         angle_pwm = self.deg2pwm(angle, self.__servorotation)
         if transition == 0:
@@ -85,7 +133,7 @@ class Servo:
             
             
             while (time.time()-start_time) <= self.__transitionspeed:
-                angle = self.ease_in_sine(current_time=time.time()-start_time, 
+                angle = self.ease_in_out_sine(current_time=time.time()-start_time, 
                                       start_value=sourcepos, 
                                       change_in_value=changeinVal,
                                       duration=self.__transitionspeed)
@@ -113,22 +161,86 @@ class Servo:
     def angle(self):
         return self.__angle
 
+
+#
+# Check if there is already a configurtion file
+if not os.path.isfile(configfile_name):
+    # Cre ate the configuration file as it doesn't exist yet
+    cfgfile = open(configfile_name, 'w')
+    # Add content to the file
+    Config = configparser.ConfigParser()
+    Config.add_section("LF")
+    Config.set("LF", "Coxa-center", "306")
+    Config.set("LF", "Coxa-center-dif", "0")
+    Config.set("LF", "Femur-center", "306")
+    Config.set("LF", "Femur-center-dif", "0")
+    Config.set("LF", "Tibia-center", "306")
+    Config.set("LF", "Tibia-center-dif", "0")
+    Config.add_section("RF")
+    Config.set("RF", "Coxa-center", "306")
+    Config.set("RF", "Coxa-center-dif", "0")
+    Config.set("RF", "Femur-center", "306")
+    Config.set("RF", "Femur-center-dif", "0")
+    Config.set("RF", "Tibia-center", "306")
+    Config.set("RF", "Tibia-center-dif", "0")
+    Config.add_section("RR")
+    Config.set("RR", "Coxa-center", "306")
+    Config.set("RR", "Coxa-center-dif", "0")
+    Config.set("RR", "Femur-center", "306")
+    Config.set("RR", "Femur-center-dif", "0")
+    Config.set("RR", "Tibia-center", "306")
+    Config.set("RR", "Tibia-center-dif", "0")
+    Config.add_section("RL")
+    Config.set("RL", "Coxa-center", "306")
+    Config.set("RL", "Coxa-center-dif", "0")
+    Config.set("RL", "Femur-center", "306")
+    Config.set("RL", "Femur-center-dif", "0")
+    Config.set("RL", "Tibia-center", "306")
+    Config.set("RL", "Tibia-center-dif", "0")
+           
+    Config.write(cfgfile)
+    cfgfile.close()
+        
+# Load the configuration file
+with open(configfile_name) as f:
+    sample_config = f.read()
+    config = configparser.RawConfigParser(allow_no_value=True)
+    config.readfp(io.StringIO(sample_config))
+    #parser.read_file(io.StringIO(sample_config))
+    
+    '''
+    # List all contents
+    print("List all contents")
+    for section in config.sections():
+        print("Section: %s" % section)
+        for options in config.options(section):
+            print("x %s:::%s:::%s" % (options,
+                                      config.get(section, options),
+                                      str(type(options))))
+    '''
+
+    Coxa_LF_center_pwm= int(config.get("LF", "Coxa-center")) +int(config.get("LF", "Coxa-center-dif"))
+    Femur_LF_center_pwm=int(config.get("LF", "Femur-center"))+int(config.get("LF", "Femur-center-dif"))
+    Tiba_LF_center_pwm= int(config.get("LF", "Tibia-center"))+int(config.get("LF", "Tibia-center-dif"))
+    Coxa_RF_center_pwm= int(config.get("RF", "Coxa-center")) +int(config.get("RF", "Coxa-center-dif"))
+    
+#
+
 maxangle= 80
 minangle=-80
-center_pwm=306
-speed=0.25
+speed=1
 servos = [
-    Servo(name="Coxa_LF",  servopin=0, minangle=minangle, maxangle=maxangle, center_pwm=center_pwm, center_degrees=0, transition=0,  transitionspeed=speed, servorotation=  1, area=45),
-    Servo(name="Femur_LF", servopin=1, minangle=minangle, maxangle=maxangle, center_pwm=center_pwm, center_degrees=0, transition=0,  transitionspeed=speed, servorotation=  1, area=45),
-    Servo(name="Tibia_LF", servopin=2, minangle=minangle, maxangle=maxangle, center_pwm=center_pwm, center_degrees=0, transition=0,  transitionspeed=speed, servorotation=  1, area=45),
+    Servo(name="Coxa_LF",  servopin=0, minangle=minangle, maxangle=maxangle, center_pwm=Coxa_LF_center_pwm, center_degrees=0, transition=0,  transitionspeed=speed, servorotation=  1, area=45),
+    Servo(name="Femur_LF", servopin=1, minangle=minangle, maxangle=maxangle, center_pwm=Femur_LF_center_pwm, center_degrees=0, transition=0,  transitionspeed=speed, servorotation=  1, area=45),
+    Servo(name="Tibia_LF", servopin=2, minangle=minangle, maxangle=maxangle, center_pwm=Tiba_LF_center_pwm, center_degrees=0, transition=0,  transitionspeed=speed, servorotation=  1, area=45),
     
-    Servo(name="Coxa_RF",  servopin=3, minangle=minangle, maxangle=maxangle, center_pwm=center_pwm, center_degrees=0, transition=0,  transitionspeed=speed, servorotation= -1, area=45),
+    Servo(name="Coxa_RF",  servopin=3, minangle=minangle, maxangle=maxangle, center_pwm=Coxa_RF_center_pwm, center_degrees=0, transition=0,  transitionspeed=speed, servorotation= -1, area=45),
     ]
-    
+
+
 Coxa_LF  = servos[0] 
 Femur_LF = servos[1] 
 Tibia_LF = servos[2] 
-
 Coxa_RF  = servos[3] 
 
 
@@ -185,65 +297,24 @@ def release():
         servos[i].pwm.set_pwm(i, 0, 0)
         
 def calibrate():
+    transition=0
     for i in range(len(servos)): 
-        servos[i].pwm.set_pwm(i, 0, 0)
         print (    "Coxa_LF -> 0,  Femur_LF-> 4,  Tibia_LF-> 8")
         print (    "Coxa_RF -> 1,  Femur_RF-> 5,  Tibia_RF-> 9")
         print (    "Coxa_RR -> 2,  Femur_RR-> 6,  Tibia_RR-> 10")
         print (    "Coxa_LR -> 3,  Femur_LR-> 7,  Tibia_LR-> 11")
         
         print("Status: " ,servos[i].GetStatus())
-        # Check if there is already a configurtion file
-        if not os.path.isfile(configfile_name):
-            # Create the configuration file as it doesn't exist yet
-            cfgfile = open(configfile_name, 'w')
-
-            # Add content to the file
-            Config = configparser.ConfigParser()
-            Config.add_section("LF")
-            Config.set("LF", "Coxa-center", "306")
-            Config.set("LF", "Femur-center", "306")
-            Config.set("LF", "Tibia-center", "306")
-            Config.add_section("RF")
-            Config.set("RF", "Coxa-center", "306")
-            Config.set("RF", "Femur-center", "306")
-            Config.set("RF", "Tibia-center", "306")
-            Config.add_section("RR")
-            Config.set("RR", "Coxa-center", "306")
-            Config.set("RR", "Femur-center", "306")
-            Config.set("RR", "Tibia-center", "306")
-            Config.add_section("RL")
-            Config.set("RL", "Coxa-center", "306")
-            Config.set("RL", "Femur-center", "306")
-            Config.set("RL", "Tibia-center", "306")        
-           
-            Config.write(cfgfile)
-            cfgfile.close()
-            
-    # Load the configuration file
-    with open("config.ini") as f:
-        sample_config = f.read()
-    config = configparser.RawConfigParser(allow_no_value=True)
-    config.readfp(io.StringIO(sample_config))
+        pyrothred_COXA_FRONT_LEFT = MyThread(target=servo.move, args=(Coxa_LF.GetServopin(), Coxa_LF.GetCenterDegrees() , Coxa_LF, transition ))
+        pyrothred_COXA_FRONT_LEFT.start()   
+        pyrothred_FEMUR_FRONT_LEFT = MyThread(target=servo.move, args=(Femur_LF.GetServopin(), 0 , Femur_LF, transition ))
+        pyrothred_FEMUR_FRONT_LEFT.start()
+        pyrothred_TIBIA_FRONT_LEFT = MyThread(target=servo.move, args=(Tibia_LF.GetServopin(), 0 , Tibia_LF, transition ))
+        pyrothred_TIBIA_FRONT_LEFT.start()
     
-    '''
-    # List all contents
-    print("List all contents")
-    for section in config.sections():
-        print("Section: %s" % section)
-        for options in config.options(section):
-            print("x %s:::%s:::%s" % (options,
-                                      config.get(section, options),
-                                      str(type(options))))
-    '''
-    # Print some contents
-    print("\nPrint some contents")
-    print(config.get("LF", "Coxa-center"))
-    servos[1].SetCenterPWM(1, int(config.get("LF", "Coxa-center")))
-
 
 #arg=sys.argv[1]
-arg = "t"
+arg = "c"
 '''
 if len(sys.argv) >2:
     limb = sys.argv[2]
