@@ -181,26 +181,29 @@ with open(configfile_name) as f:
     '''
 
     Coxa_LF_center_pwm= int(config.get("LF", "Coxa-center")) +int(config.get("LF", "Coxa-center-dif"))
-    Coxa_LF_length = int(config.get("LF", "Coxa-length"))
+    Coxa_LF_length = float(config.get("LF", "Coxa-length"))
     Coxa_LF_maxangle = int(config.get("LF", "Coxa-maxangle"))
     Coxa_LF_minangle = int(config.get("LF", "Coxa-minangle"))
     
     Femur_LF_center_pwm=int(config.get("LF", "Femur-center"))+int(config.get("LF", "Femur-center-dif"))
-    Femur_LF_length = int(config.get("LF", "Femur-length"))
+    Femur_LF_length = float(config.get("LF", "Femur-length"))
     Femur_LF_maxangle = int(config.get("LF", "Femur-maxangle"))
     Femur_LF_minangle = int(config.get("LF", "Femur-minangle"))
     
     Tibia_LF_center_pwm= int(config.get("LF", "Tibia-center"))+int(config.get("LF", "Tibia-center-dif"))
-    Tibia_LF_length = int(config.get("LF", "Tibia-length"))
+    Tibia_LF_length = float(config.get("LF", "Tibia-length"))
     Tibia_LF_maxangle = int(config.get("LF", "Tibia-maxangle"))
     Tibia_LF_minangle = int(config.get("LF", "Tibia-minangle"))
     
     Coxa_RF_center_pwm= int(config.get("RF", "Coxa-center")) +int(config.get("RF", "Coxa-center-dif"))
-    Coxa_RF_length = int(config.get("RF", "Coxa-length"))
+    Coxa_RF_length = float(config.get("RF", "Coxa-length"))
     Coxa_RF_maxangle = int(config.get("RF", "Coxa-maxangle"))
     Coxa_RF_minangle = int(config.get("RF", "Coxa-minangle"))
  
     Conf_speed = float(config.get("GENERAL", "speed"))
+    Conf_length = float(config.get("GENERAL", "length"))
+    Conf_width = float(config.get("GENERAL", "width"))
+    
 #maxangle= 80
 #minangle=-80
 speed = Conf_speed
@@ -267,7 +270,7 @@ def test():
     pyrothred_TIBIA_FRONT_LEFT = MyThread(target=servo.move, args=(Tibia_LF.GetServopin(), -45 , Tibia_LF, transition ))
     pyrothred_TIBIA_FRONT_LEFT.start()
 
-def get_IK_angles(drop, slew):
+def get_IK_angles(drop, slew): #unused fpr now
 
         l_femur = Femur_LF_length*10 # mm
         l_tibia = Tibia_LF_length*10 # mm
@@ -282,10 +285,11 @@ def get_IK_angles(drop, slew):
 
 """
 INVERSE KINEMATICS by https://github.com/miguelasd688/Quadruped-dog-like-robot/blob/master/src/quadpod.py
+https://www.ijstr.org/final-print/sep2017/Inverse-Kinematic-Analysis-Of-A-Quadruped-Robot.pdf
 """
 def checkdomain(D):
     if D > 1 or D < -1:
-        print("____OUT OF DOMAIN____")
+        print("____OUT OF DOMAIN____:",D)
         if D > 1: 
             D = 0.99
             return D
@@ -296,28 +300,94 @@ def checkdomain(D):
         return D
         
 
-def solveIK_R(coord , coxa , femur , tibia): 
-"""where:
-   coord = np.array([x4,y4,z4])
-   coxa = L1 
-   femur = L2 
-   tibia = L3
-"""
 
-    D = (coord[1]**2+(-coord[2])**2-coxa**2+(-coord[0])**2-femur**2-tibia**2)/(2*tibia*femur)  
+def solveIK_FL(coord , coxa , femur , tibia): 
+    """where:
+    Fig. 2 of https://www.researchgate.net/publication/320307716_Inverse_Kinematic_Analysis_Of_A_Quadruped_Robot
+    coord = np.array([x4,y4,z4])
+    coxa  = L1 
+    femur = L2 
+    tibia = L3
+    """
+    coord = [-1, 1, 0]
+    coxa = 4
+    femur = 5.5
+    tibia = 1
+
+    D = (coord[0]**2+coord[1]**2-coxa**2+coord[2]**2-femur**2-tibia**2)/(2*tibia*femur)
+    
     D = checkdomain(D) #This is just to deal with NaN solutions
-    gamma = numpy.arctan2(-numpy.sqrt(1-D**2),D)
-    tetta = -numpy.arctan2(coord[2],coord[1])-numpy.arctan2(numpy.sqrt(coord[1]**2+(-coord[2])**2-coxa**2),-coxa)
-    alpha = numpy.arctan2(-coord[0],numpy.sqrt(coord[1]**2+(-coord[2])**2-coxa**2))-numpy.arctan2(tibia*numpy.sin(gamma),femur+tibia*numpy.cos(gamma))
-    angles = numpy.array([-tetta, alpha, gamma])
+    
+    theta1 = -arctan2(-coord[1],coord[0])-arctan2(sqrt(coord[0]**2+coord[1]**2-coxa**2),-coxa)
+
+    theta3 = arctan2(-sqrt(1-D**2),D)
+    
+    theta2 = arctan2(coord[2],sqrt(coord[0]**2+coord[1]**2-coxa**2))-arctan2(tibia*sin(theta3),femur+tibia*cos(theta3))
+
+    print ("theta1: ", theta1)
+    print ("theta2: ", theta2)
+    print ("theta3: ", theta3)
+    
+    gamma = arctan2(-sqrt(1-D**2),D)
+    tetta = -arctan2(coord[2],coord[1])-arctan2(sqrt(coord[1]**2+(-coord[2])**2-coxa**2),-coxa)
+    alpha = arctan2(-coord[0],sqrt(coord[1]**2+(-coord[2])**2-coxa**2))-arctan2(tibia*sin(gamma),femur+tibia*cos(gamma))
+    
+    print ("gamma: ", gamma)
+    print ("tetta: ", tetta)
+    print ("alpha: ", alpha)
+    
+    angles = array([theta1, theta2, theta3])
     return angles
 
+def solve(self, orn , pos , bodytoFeet):
+        bodytoFR4 = np.asarray([bodytoFeet[0,0],bodytoFeet[0,1],bodytoFeet[0,2]])
+        bodytoFL4 = np.asarray([bodytoFeet[1,0],bodytoFeet[1,1],bodytoFeet[1,2]])
+        bodytoBR4 = np.asarray([bodytoFeet[2,0],bodytoFeet[2,1],bodytoFeet[2,2]])
+        bodytoBL4 = np.asarray([bodytoFeet[3,0],bodytoFeet[3,1],bodytoFeet[3,2]])
+
+        """defines 4 vertices which rotates with the body"""
+        _bodytoFR0 = geo.transform(self.bodytoFR0 , orn, pos)
+        _bodytoFL0 = geo.transform(self.bodytoFL0 , orn, pos)
+        _bodytoBR0 = geo.transform(self.bodytoBR0 , orn, pos)
+        _bodytoBL0 = geo.transform(self.bodytoBL0 , orn, pos)
+        """defines coxa_frame to foot_frame leg vector neccesary for IK"""
+        FRcoord = bodytoFR4 - _bodytoFR0
+        FLcoord = bodytoFL4 - _bodytoFL0
+        BRcoord = bodytoBR4 - _bodytoBR0
+        BLcoord = bodytoBL4 - _bodytoBL0
+        """undo transformation of leg vector to keep feet still"""
+        undoOrn = -orn
+        undoPos = -pos
+        _FRcoord = geo.transform(FRcoord , undoOrn, undoPos)
+        _FLcoord = geo.transform(FLcoord , undoOrn, undoPos)
+        _BRcoord = geo.transform(BRcoord , undoOrn, undoPos)
+        _BLcoord = geo.transform(BLcoord , undoOrn, undoPos)
+        
+        """solve inverse kinematics with frame0 to frame4 vector"""
+        FR_angles = IK.solve_R(_FRcoord , self.coxa , self.femur , self.tibia)
+        FL_angles = IK.solve_L(_FLcoord , self.coxa , self.femur , self.tibia)
+        BR_angles = IK.solve_R(_BRcoord , self.coxa , self.femur , self.tibia)
+        BL_angles = IK.solve_L(_BLcoord , self.coxa , self.femur , self.tibia)
+        
+        _bodytofeetFR = _bodytoFR0 + _FRcoord
+        _bodytofeetFL = _bodytoFL0 + _FLcoord
+        _bodytofeetBR = _bodytoBR0 + _BRcoord
+        _bodytofeetBL = _bodytoBL0 + _BLcoord
+        _bodytofeet = np.matrix([[_bodytofeetFR[0] , _bodytofeetFR[1] , _bodytofeetFR[2]],
+                                 [_bodytofeetFL[0] , _bodytofeetFL[1] , _bodytofeetFL[2]],
+                                 [_bodytofeetBR[0] , _bodytofeetBR[1] , _bodytofeetBR[2]],
+                                 [_bodytofeetBL[0] , _bodytofeetBL[1] , _bodytofeetBL[2]]])
+        
+        return FR_angles, FL_angles, BR_angles, BL_angles , _bodytofeet
+    
 def ik(height, xpos):
 
         #arr = get_IK_angles(height,xpos)
-        arr = solveIK_L([x4,y4,z4],5, 5, 1)
+    
+    
+        arr = solveIK_FL([-2, 0, 0], 4, 5.5, 1)  #
         print ("arr: ", arr)
-        #return
+        return
     
         COXA_FRONT_LEFT_pos_angle  = arr[0]
         FEMUR_FRONT_LEFT_pos_angle = arr[1]
