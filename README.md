@@ -27,11 +27,11 @@ trust A4:AE:11:DE:4E:BB
 
 sudo apt-get install lxde
 
-sudo apt install libgl1-mesa-glx
+sudo apt install libgl1-mesa-glx  
 sudo apt-get install -y libdbus-glib-1-2
 
-sudo apt install python3-pip
-sudo pip3 install adafruit-pca9685
+sudo apt install python3-pip  
+sudo pip3 install adafruit-pca9685  
 sudo pip3 install pyPS4Controller
 
 sudo chown :i2c /dev/i2c-1
