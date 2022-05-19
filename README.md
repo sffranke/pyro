@@ -41,7 +41,7 @@ sudo apt install i2c-tools
 
 sudo pip3 install configparser
 
-*setup raspian*  
+*setup raspian 11.3*  
 apt-get update; apt-get upgrade  
 
 sudo apt install pi-bluetooth  
