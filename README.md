@@ -34,7 +34,7 @@ sudo apt install python3-pip
 sudo pip3 install adafruit-pca9685  
 sudo pip3 install pyPS4Controller
 
-sudo chown :i2c /dev/i2c-1
+sudo chown :i2c /dev/i2c-1  
 sudo chmod g+rw /dev/i2c-1
 
 sudo apt install i2c-tools
@@ -55,7 +55,7 @@ trust A4:AE:11:DE:4E:BB
 
 sudo apt install python3-pip  
 
-sudo chown :i2c /dev/i2c-1
+sudo chown :i2c /dev/i2c-1   
 sudo chmod g+rw /dev/i2c-1
 
 sudo apt install i2c-tools
