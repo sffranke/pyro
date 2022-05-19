@@ -66,3 +66,4 @@ sudo apt install i2c-tools
 
 sudo pip3 install configparser
 
+sudo apt install git
