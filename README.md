@@ -54,7 +54,11 @@ pair A4:AE:11:DE:4E:BB
 trust A4:AE:11:DE:4E:BB  
 
 sudo apt install python3-pip  
+sudo pip3 install adafruit-pca9685  
+sudo pip3 install pyPS4Controller  
+sudo apt install i2c-tools  
 
+sudo raspi-config -> enable interfacing, i2c  
 sudo chown :i2c /dev/i2c-1   
 sudo chmod g+rw /dev/i2c-1
 
