@@ -40,3 +40,25 @@ sudo chmod g+rw /dev/i2c-1
 sudo apt install i2c-tools
 
 sudo pip3 install configparser
+
+*setup raspian*  
+apt-get update; apt-get upgrade  
+
+sudo apt install pi-bluetooth  
+
+sudo bluetoothctl    
+pairable on   
+scan on  
+scan off  
+pair A4:AE:11:DE:4E:BB  
+trust A4:AE:11:DE:4E:BB  
+
+sudo apt install python3-pip  
+
+sudo chown :i2c /dev/i2c-1
+sudo chmod g+rw /dev/i2c-1
+
+sudo apt install i2c-tools
+
+sudo pip3 install configparser
+
