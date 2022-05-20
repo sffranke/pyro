@@ -11,8 +11,8 @@ Furthermore, I decided to work with hobby mini servos like MG92B. They are affor
 *setup raspian 2022-04-04-raspios-bullseye-armhf.img.xz*  
 apt-get update; apt-get upgrade  
 
-sudo apt install libgl1-mesa-glx  
-sudo apt-get install -y libdbus-glib-1-2
+##sudo apt install libgl1-mesa-glx  
+##sudo apt-get install -y libdbus-glib-1-2
 
 #sudo apt install pi-bluetooth  
 
@@ -38,4 +38,6 @@ sudo pip3 install configparser
 #sudo apt install git  
 
 sudo pip3 install matplotlib
+
+sudo apt-get install libatlas-base-dev
 
