@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
+import io
+import os
 import random
 import numpy as np
 import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d.axes3d as p3
 import matplotlib.animation as animation
+import configparser
 from math import pi
 from spot_micro_kinematics_python.spot_micro_stick_figure import SpotMicroStickFigure
 from spot_micro_kinematics_python.utilities import spot_micro_kinematics as smk
@@ -12,6 +15,59 @@ from pyPS4Controller.controller import Controller
 from Classes.TheThreads import MyThread
 
 import time
+from threading import Timer
+
+class RepeatTimer(Timer):
+    def run(self):
+        while not self.finished.wait(self.interval):
+            self.function(*self.args, **self.kwargs)
+
+
+configfile_name = "./config.ini"
+
+# Load the configuration file
+with open(configfile_name) as f:
+    sample_config = f.read()
+    config = configparser.RawConfigParser(allow_no_value=True)
+    config.readfp(io.StringIO(sample_config))
+    #parser.read_file(io.StringIO(sample_config))
+    
+    '''
+    # List all contents
+    print("List all contents")
+    for section in config.sections():
+        print("Section: %s" % section)
+        for options in config.options(section):
+            print("x %s:::%s:::%s" % (options,
+                                      config.get(section, options),
+                                      str(type(options))))
+    '''
+
+    Coxa_LF_center_pwm= int(config.get("LF", "Coxa-center")) +int(config.get("LF", "Coxa-center-dif"))
+    Coxa_LF_length = float(config.get("LF", "Coxa-length"))
+    Coxa_LF_maxangle = int(config.get("LF", "Coxa-maxangle"))
+    Coxa_LF_minangle = int(config.get("LF", "Coxa-minangle"))
+    
+    Femur_LF_center_pwm=int(config.get("LF", "Femur-center"))+int(config.get("LF", "Femur-center-dif"))
+    Femur_LF_length = float(config.get("LF", "Femur-length"))
+    Femur_LF_maxangle = int(config.get("LF", "Femur-maxangle"))
+    Femur_LF_minangle = int(config.get("LF", "Femur-minangle"))
+    
+    Tibia_LF_center_pwm= int(config.get("LF", "Tibia-center"))+int(config.get("LF", "Tibia-center-dif"))
+    Tibia_LF_length = float(config.get("LF", "Tibia-length"))
+    Tibia_LF_maxangle = int(config.get("LF", "Tibia-maxangle"))
+    Tibia_LF_minangle = int(config.get("LF", "Tibia-minangle"))
+    
+    Coxa_RF_center_pwm= int(config.get("RF", "Coxa-center")) +int(config.get("RF", "Coxa-center-dif"))
+    Coxa_RF_length = float(config.get("RF", "Coxa-length"))
+    Coxa_RF_maxangle = int(config.get("RF", "Coxa-maxangle"))
+    Coxa_RF_minangle = int(config.get("RF", "Coxa-minangle"))
+
+    ''' later... set in SpotMicroStickFigure
+    Conf_speed = float(config.get("GENERAL", "speed"))
+    Conf_length = float(config.get("GENERAL", "length"))
+    Conf_width = float(config.get("GENERAL", "width"))
+    '''
 
 d2r = pi/180
 r2d = 180/pi
@@ -19,14 +75,22 @@ r2d = 180/pi
 # Attaching 3D axis to the figure
 fig = plt.figure()
 
-
 # Set azimtuth and elevation of plot
 # ax.view_init(elev=135,azim=0)
 
 # Instantiate spot micro stick figure obeject
-sm = SpotMicroStickFigure(x=0,y=0.18,z=0, theta=00*d2r)
+#sm = SpotMicroStickFigure(x=0,y=0.18,z=0, theta=00*d2r)
+Conf_maxheight = float(config.get("GENERAL", "maxheight"))
+sm = SpotMicroStickFigure(x=0,y=Conf_maxheight,z=0, theta=00*d2r)
 
 # Define absolute position for the legs
+'''
+        self.hip_length = 0.03
+        self.upper_leg_length = 0.042
+        self.lower_leg_length = 0.055
+        self.body_width = 0.08
+        self.body_length = 0.118
+'''
 l = sm.body_length
 w = sm.body_width
 l1 = sm.hip_length
@@ -56,29 +120,58 @@ arr= np.array([ [rrx,   rry,  rrz],
                 [rfx ,  rfy,  rfz],
                 [lfx ,  lfy,  lfz],
                 [lrx ,  lry,  lrz] ])
+                
+theta_tmp= 999
+psi_tmp= psi
+phi_tmp= phi
+
+arr_tmp= arr.copy()
 
 ax = p3.Axes3D(fig)
 
 ax.set_xlabel('X')
 ax.set_ylabel('Z')
 ax.set_zlabel('Y')
-
+'''
 ax.set_xlim3d([-0.2, 0.2])
 ax.set_zlim3d([0, 0.4])
 ax.set_ylim3d([0.2,-0.2])
+'''
+def haschangedparams():
+    if (theta_tmp !=  theta):
+        return True
+    if (psi_tmp !=  psi):
+        return True
+    if (phi_tmp !=  phi):
+        return True
+    if((arr_tmp!=arr).all()):
+        return True
     
+    return False
+
 def plotme(msg):
     global theta, psi, phi, ax, arr
+    global theta_tmp, psi_tmp, phi_tmp, arr_tmp
     print ("==========================")
     print ("in plotme:", msg)
     print ("theta: ", theta,"psi: ", psi, "phi: ",phi)
     print ("==========================")
     
+    if ( haschangedparams() == False ):
+        print (haschangedparams(), "nothing changed()")
+        return
+        
+    theta_tmp= theta
+    psi_tmp= psi
+    phi_tmp= phi
+    arr_tmp= arr.copy
+    
+    
     #theta = random.randint(0,20)*d2r
     ax.cla()
-    ax.set_xlim3d([-0.2, 0.2])
-    ax.set_zlim3d([0, 0.4])
-    ax.set_ylim3d([0.2,-0.2])
+    ax.set_xlim3d([-0.1, 0.1])
+    ax.set_zlim3d([0, 0.1])
+    ax.set_ylim3d([0.1,-0.1])
     
     plt.ion() 
     plt.show()
@@ -124,7 +217,7 @@ def plotme(msg):
             z_vals = [leg[i][2], leg[i+1][2]]
             lines.append(ax.plot(x_vals,z_vals,y_vals,color=plt_colors[i])[0])
 
-    plt.pause(1e-10)     
+    plt.pause(0.0000001)     
     
 
 def reset():
@@ -163,7 +256,7 @@ def reset():
     arr= np.array([ [rrx,   rry,  rrz],
 		    [rfx ,  rfy,  rfz],
 		    [lfx ,  lfy,  lfz],
-	            [lrx ,  lry,  lrz] ])
+            [lrx ,  lry,  lrz] ])
 
 
 def stand():
@@ -320,32 +413,31 @@ def down_arrow_press(self):
                     
 def leftjoyleft(self, value):
     global phi
-    phi_max=20
-    phi_min=0
-    # 0 - 32767
+    phi_max=10
+    # 0 - 32767 
+    print(value)
     para = int( 100*value/32767)  # in %
     phi=(para/100)*phi_max*d2r
 
 def leftjoyright(self, value):
     global phi
-    phi_max=20
-    phi_min=0
+    phi_max=10
     # 0 - 32767
     para = int( 100*value/32767)  # in %
     phi=(para/100)*phi_max*d2r
+    print("+++++++++++++ ",phi*r2d)
 
 def leftjoyup(self, value):
     global theta
     theta_max=20
-    theta_min=0
     # 0 - 32767
-    para = int( 100*value)  # in %
+    para = int( 100*value/32767)  # in %
     theta=(para/100)*theta_max*d2r
+    #plotme("") 
 
 def leftjoydown(self, value):
     global theta
     theta_max=20
-    theta_min=0
     # 0 - 32767
     para = int( 100*value/32767)  # in %
     theta=(para/100)*theta_max*d2r
@@ -353,7 +445,6 @@ def leftjoydown(self, value):
 def rightjoyleft(self, value):
     global psi
     psi_max=20
-    psi_min=0
     # 0 - 32767
     para = int( 100*value/32767)  # in %
     psi=(para/100)*psi_max*d2r
@@ -361,7 +452,6 @@ def rightjoyleft(self, value):
 def rightjoyright(self, value):
     global psi
     psi_max=20
-    psi_min=0
     # 0 - 32767
     para = int( 100*value/32767)  # in %
     psi=(para/100)*psi_max*d2r
@@ -422,15 +512,22 @@ for value in range(0,32767,1000):
     plotme("ho")
 '''  
 reset()
-plotme("")
+#plotme("")
 time.sleep(1)
 
-walk()
+#### walk()
 
 
 reset()  
 plotme("rr")
-time.sleep(3)
+
+timer = RepeatTimer(0.3, plotme, args=("",))
+timer.start()
+#time.sleep(5)
+#timer.cancel()
+
+
+#time.sleep(3)
 #time.sleep(1000)
-#controller = MyController(interface="/dev/input/js0", connecting_using_ds4drv=False)
-#controller.listen(timeout=60)
+controller = MyController(interface="/dev/input/js0", connecting_using_ds4drv=False)
+controller.listen(timeout=60)
