@@ -68,6 +68,10 @@ with open(configfile_name) as f:
     Conf_length = float(config.get("GENERAL", "length"))
     Conf_width = float(config.get("GENERAL", "width"))
     '''
+    
+    calib_arr=str(config.get("GAIT", "calib")).split(",")
+    balance_arr=str(config.get("GAIT", "balance")).split(",")
+    sit_arr=str(config.get("GAIT", "sit")).split(",")
 
 d2r = pi/180
 r2d = 180/pi
@@ -455,6 +459,24 @@ def rightjoyright(self, value):
     # 0 - 32767
     para = int( 100*value/32767)  # in %
     psi=(para/100)*psi_max*d2r
+    
+def calib(self):
+    global arr
+    global rrx, rry, rrz
+    global rfx, rfy, rfz
+    global lfx, lfy, lfz
+    global lrx, lry, lrz
+    global calib_arr
+    
+    
+    zmax = 0.02 #meter
+    
+    self.rb_leg_angles   = [calib_arr[6],calib_arr[10],calib_arr[14]]
+    self.rf_leg_angles   = [calib_arr[5],calib_arr[9],calib_arr[13]]
+    self.lf_leg_angles   = [calib_arr[4],calib_arr[8],calib_arr[12]]
+    self.lb_leg_angles   = [calib_arr[7],calib_arr[11],calib_arr[15]]
+    
+    
 
 ### run PS4Controller   
 class MyController(Controller):
@@ -493,6 +515,10 @@ class MyController(Controller):
         
     def on_R3_right(self, value):
         rightjoyright("RL3_right", value)
+        
+    def on_options_press():
+        calib("Calib")
+        
     '''
     def on_x_press(self):
         print("on_x_Press")
