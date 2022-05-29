@@ -460,7 +460,8 @@ def rightjoyright(self, value):
     para = int( 100*value/32767)  # in %
     psi=(para/100)*psi_max*d2r
     
-def calib(self):
+def calib():
+    print("Kalib")
     global arr
     global rrx, rry, rrz
     global rfx, rfy, rfz
@@ -470,12 +471,19 @@ def calib(self):
     
     
     zmax = 0.02 #meter
+    print ("üüüü ",calib_arr)
+    '''
+    sm.rb_leg_angles   = [int(calib_arr[6])*d2r,int(calib_arr[10])*d2r,int(calib_arr[14])*d2r]
+    sm.rf_leg_angles   = [int(calib_arr[5])*d2r,int(calib_arr[9])*d2r,int(calib_arr[13])*d2r]
+    sm.lf_leg_angles   = [int(calib_arr[4])*d2r,int(calib_arr[8])*d2r,cint(alib_arr[12])*d2r]
+    sm.lb_leg_angles   = [int(calib_arr[7])*d2r,int(calib_arr[11])*d2r,int(calib_arr[15])*d2r]
+    '''
+    sm.legs['leg_rightback'].set_angles(int(calib_arr[2])*d2r,int(calib_arr[6])*d2r,int(calib_arr[10])*d2r)
+    sm.legs['leg_rightfront'].set_angles(int(calib_arr[1])*d2r,int(calib_arr[5])*d2r,int(calib_arr[9])*d2r)
+    sm.legs['leg_leftfront'].set_angles(int(calib_arr[0])*d2r,int(calib_arr[4])*d2r,int(calib_arr[8])*d2r)
+    sm.legs['leg_leftback'].set_angles(int(calib_arr[3])*d2r,int(calib_arr[7])*d2r,int(calib_arr[11])*d2r) 
     
-    self.rb_leg_angles   = [calib_arr[6],calib_arr[10],calib_arr[14]]
-    self.rf_leg_angles   = [calib_arr[5],calib_arr[9],calib_arr[13]]
-    self.lf_leg_angles   = [calib_arr[4],calib_arr[8],calib_arr[12]]
-    self.lb_leg_angles   = [calib_arr[7],calib_arr[11],calib_arr[15]]
-    
+    plotme("d")
     
 
 ### run PS4Controller   
@@ -516,8 +524,8 @@ class MyController(Controller):
     def on_R3_right(self, value):
         rightjoyright("RL3_right", value)
         
-    def on_options_press():
-        calib("Calib")
+    def on_options_press(self):
+        calib()
         
     '''
     def on_x_press(self):
