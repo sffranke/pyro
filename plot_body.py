@@ -189,6 +189,10 @@ def plotme(msg):
 
     # Get leg coordinates
     coords = sm.get_leg_coordinates()
+    
+    # Get leg coordinates
+    #print("calib plot: ",coords)
+
 
     # Initialize empty list top hold line objects
     lines = []
@@ -221,6 +225,8 @@ def plotme(msg):
             z_vals = [leg[i][2], leg[i+1][2]]
             lines.append(ax.plot(x_vals,z_vals,y_vals,color=plt_colors[i])[0])
 
+    #leg_angs = sm.get_leg_angles()
+    #print("leg_angs: ",leg_angs)
     plt.pause(0.0000001)     
     
 
@@ -462,28 +468,66 @@ def rightjoyright(self, value):
     
 def calib():
     print("Kalib")
+    
+    coords = sm.get_leg_coordinates()
+    print("vorher calib coords: ",coords)
+   
     global arr
     global rrx, rry, rrz
     global rfx, rfy, rfz
     global lfx, lfy, lfz
     global lrx, lry, lrz
     global calib_arr
+    #, theta_tmp
     
     
     zmax = 0.02 #meter
-    print ("üüüü ",calib_arr)
+    #print (sm," üüüü ",calib_arr)
     '''
     sm.rb_leg_angles   = [int(calib_arr[6])*d2r,int(calib_arr[10])*d2r,int(calib_arr[14])*d2r]
     sm.rf_leg_angles   = [int(calib_arr[5])*d2r,int(calib_arr[9])*d2r,int(calib_arr[13])*d2r]
     sm.lf_leg_angles   = [int(calib_arr[4])*d2r,int(calib_arr[8])*d2r,cint(alib_arr[12])*d2r]
     sm.lb_leg_angles   = [int(calib_arr[7])*d2r,int(calib_arr[11])*d2r,int(calib_arr[15])*d2r]
-    '''
+    
+    sm.legs['leg_rightback'].set_angles(int(calib_arr[6])*d2r,int(calib_arr[10])*d2r,int(calib_arr[14])*d2r)
+    sm.legs['leg_rightfront'].set_angles(int(calib_arr[5])*d2r,int(calib_arr[9])*d2r,int(calib_arr[13])*d2r)
+    sm.legs['leg_leftfront'].set_angles(int(calib_arr[4])*d2r,int(calib_arr[8])*d2r,cint(alib_arr[12])*d2r)
+    sm.legs['leg_leftback'].set_angles(int(calib_arr[7])*d2r,int(calib_arr[11])*d2r,int(calib_arr[15])*d2r)   
+    
     sm.legs['leg_rightback'].set_angles(int(calib_arr[2])*d2r,int(calib_arr[6])*d2r,int(calib_arr[10])*d2r)
     sm.legs['leg_rightfront'].set_angles(int(calib_arr[1])*d2r,int(calib_arr[5])*d2r,int(calib_arr[9])*d2r)
     sm.legs['leg_leftfront'].set_angles(int(calib_arr[0])*d2r,int(calib_arr[4])*d2r,int(calib_arr[8])*d2r)
     sm.legs['leg_leftback'].set_angles(int(calib_arr[3])*d2r,int(calib_arr[7])*d2r,int(calib_arr[11])*d2r) 
+
+
+    leg_angs:  ((-4.440892098500626e-16, -1.4806154496139619, 2.295977307187468), (-4.440892098500626e-16, -1.3793055865403139, 2.1762685027661113), (-4.440892098500626e-16, 1.3793055865403139, -2.1762685027661113), (-4.440892098500626e-16, 1.4806154496139619, -2.295977307187468))
+    '''
+    # ((rb_q1,rb_q2,rb_q3),(rf_q1,rf_q2,rf_q3),(lf_q1,lf_q2,lf_q3),(lb_q1,lb_q2,lb_q3)s)
+    #sm.set_leg_angles( (int(calib_arr[2])*d2r,int(calib_arr[6])*d2r,int(calib_arr[10])*d2r),(int(calib_arr[1])*d2r,int(calib_arr[5])*d2r,int(calib_arr[9])*d2r),(int(calib_arr[4])*d2r,int(calib_arr[8])*d2r,int(calib_arr[12])*d2r),(int(calib_arr[7])*d2r,int(calib_arr[11])*d2r,int(calib_arr[15])*d2r) ) 
+    #sm.set_leg_angles( [ int(calib_arr[2]),int(calib_arr[6]),int(calib_arr[10]],array[int(calib_arr[1]),int(calib_arr[5]),int(calib_arr[9]],array[int(calib_arr[4]),int(calib_arr[8]),int(calib_arr[12]],array[int(calib_arr[7]),int(calib_arr[11]),int(calib_arr[15]] ) 
     
-    plotme("d")
+    sm.set_leg_angles( [ [19,0,0],[0,0,0],[0,0,0],[0,0,0] ] ) 
+
+    # Get leg coordinates
+    coords = sm.get_leg_coordinates()
+    print("nachher calib coords: ",coords)
+
+    # Get leg angles
+    leg_angs = sm.get_leg_angles()
+    print("nachher calib leg_angs: ",leg_angs)
+    
+    theta_tmp = 999
+    
+    '''
+    arr= np.array([ 
+                    coords[0][0], coords[0][1], coords[0][2],
+                    coords[1][0], coords[1][1], coords[1][2],
+                    coords[2][0], coords[2][1], coords[2][2],
+                    coords[3][0], coords[3][1], coords[3][2]
+                    ])
+    '''
+    
+    #plotme("d")
     
 
 ### run PS4Controller   
@@ -492,7 +536,8 @@ class MyController(Controller):
         Controller.__init__(self, **kwargs)
     
     def on_share_press(self):
-    	reset()
+        #timer.start()
+        reset()
     
     def on_left_arrow_press(self):
         left_arrow_press("left_arrow_press")
@@ -525,6 +570,7 @@ class MyController(Controller):
         rightjoyright("RL3_right", value)
         
     def on_options_press(self):
+        #timer.cancel()
         calib()
         
     '''
