@@ -72,6 +72,7 @@ with open(configfile_name) as f:
     calib_arr=str(config.get("GAIT", "calib")).split(",")
     balance_arr=str(config.get("GAIT", "balance")).split(",")
     sit_arr=str(config.get("GAIT", "sit")).split(",")
+    rest_arr=str(config.get("GAIT", "rest")).split(",")
 
 d2r = pi/180
 r2d = 180/pi
@@ -116,7 +117,7 @@ rfz = w/2 + l1
 lfz = -w/2 - l1
 lrz = -w/2 - l1
 
-theta= 10*d2r
+theta= 0*d2r
 psi= 0*d2r
 phi= 0*d2r
 
@@ -142,7 +143,6 @@ ax.set_zlim3d([0, 0.4])
 ax.set_ylim3d([0.2,-0.2])
 '''
 desired_p4_points = arr
-    
 sm.set_absolute_foot_coordinates(desired_p4_points)
 
 def haschangedparams():
@@ -177,15 +177,14 @@ def plotme(msg):
     
     #theta = random.randint(0,20)*d2r
     ax.cla()
-    ax.set_xlim3d([-0.1, 0.1])
-    ax.set_zlim3d([0, 0.1])
-    ax.set_ylim3d([0.1,-0.1])
+    ax.set_xlim3d([-0.2, 0.2])
+    ax.set_zlim3d([0, 0.2])
+    ax.set_ylim3d([0.2,-0.2])
     
     plt.ion() 
     plt.show()
     
     ##desired_p4_points = arr
-    
     ##sm.set_absolute_foot_coordinates(desired_p4_points)
 
     # Set a pitch angle
@@ -263,7 +262,7 @@ def reset():
     lfz = -w/2 - l1
     lrz = -w/2 - l1
 
-    theta= 10*d2r
+    theta= 0*d2r
     psi= 0*d2r
     phi= 0*d2r
 
@@ -272,25 +271,76 @@ def reset():
 		    [lfx ,  lfy,  lfz],
             [lrx ,  lry,  lrz] ])
 
+    desired_p4_points = arr
+    sm.set_absolute_foot_coordinates(desired_p4_points)
 
+def calib():
+    print("Kalib")
+    
+    global calib_arr
+    global theta
+    global psi
+    global phi
+    theta = 0
+    psi = 0
+    phi = 0
+    
+    calib_arr_sm = [int(i) +1 for i in calib_arr]
+    
+    '''
+      calib=lf_q1,rf_q1,rb_q1,lb_q1, 
+            lf_q2,rf_q2,rb_q2,lb_q2, 
+            lf_q3,rf_q3,rb_q3,lb_q3
+    '''
+    sm.set_leg_angles( [ [int(calib_arr_sm[2])*d2r, -int(calib_arr_sm[6])*d2r, int(calib_arr_sm[10])*d2r],
+                         [int(calib_arr_sm[1])*d2r, -int(calib_arr_sm[5])*d2r, int(calib_arr_sm[9])*d2r],
+                         [int(calib_arr_sm[0])*d2r, int(calib_arr_sm[4])*d2r, -int(calib_arr_sm[8])*d2r],
+                         [int(calib_arr_sm[3])*d2r, int(calib_arr_sm[7])*d2r, -int(calib_arr_sm[11])*d2r] ] ) 
+    
+    #theta_tmp = 999
 def stand():
-    # Stand
-                 
-    # Get leg angles
-    leg_angs = sm.get_leg_angles()
-    print('Leg angles: ', leg_angs[0][0]*r2d, leg_angs[0][1]*r2d, leg_angs[0][2]*r2d)
-    print('Leg angles: ', leg_angs[1][0]*r2d, leg_angs[1][1]*r2d, leg_angs[1][2]*r2d)
-    print('Leg angles: ', leg_angs[2][0]*r2d, leg_angs[2][1]*r2d, leg_angs[2][2]*r2d)
-    print('Leg angles: ', leg_angs[3][0]*r2d, leg_angs[3][1]*r2d, leg_angs[3][2]*r2d)
-    #print('q1: %2.1f deg, q2: %2.1f deg, q3: %2.1f deg'%(q1*r2d,q2*r2d,q3*r2d))
+
+    print("Stand")
+    
+    global balance_arr
+    
+    
+    stand_arr_sm = [int(i) +1 for i in balance_arr]
+    
+    '''
+      calib=lf_q1,rf_q1,rb_q1,lb_q1, 
+            lf_q2,rf_q2,rb_q2,lb_q2, 
+            lf_q3,rf_q3,rb_q3,lb_q3
+    '''
+    sm.set_leg_angles( [ [int(stand_arr_sm[2])*d2r, -int(stand_arr_sm[6])*d2r, int(stand_arr_sm[10])*d2r],
+                         [int(stand_arr_sm[1])*d2r, -int(stand_arr_sm[5])*d2r, int(stand_arr_sm[9])*d2r],
+                         [int(stand_arr_sm[0])*d2r, int(stand_arr_sm[4])*d2r, -int(stand_arr_sm[8])*d2r],
+                         [int(stand_arr_sm[3])*d2r, int(stand_arr_sm[7])*d2r, -int(stand_arr_sm[11])*d2r] ] ) 
   
-  
+def rest():
+
+    print("Rest")
+    
+    global rest_arr
+      
+    rest_arr_sm = [int(i) +1 for i in rest_arr]
+    
+    '''
+      calib=lf_q1,rf_q1,rb_q1,lb_q1, 
+            lf_q2,rf_q2,rb_q2,lb_q2, 
+            lf_q3,rf_q3,rb_q3,lb_q3
+    '''
+    sm.set_leg_angles( [ [int(rest_arr_sm[2])*d2r, -int(rest_arr_sm[6])*d2r, int(rest_arr_sm[10])*d2r],
+                         [int(rest_arr_sm[1])*d2r, -int(rest_arr_sm[5])*d2r, int(rest_arr_sm[9])*d2r],
+                         [int(rest_arr_sm[0])*d2r, int(rest_arr_sm[4])*d2r, -int(rest_arr_sm[8])*d2r],
+                         [int(rest_arr_sm[3])*d2r, int(rest_arr_sm[7])*d2r, -int(rest_arr_sm[11])*d2r] ] )   
+                         
+
 def walkthread(self, servopin, angle, transition):
     print (servopin, angle, transition)
 
 def walk():
 
-    
     print ("in walk")
     global arr, theta, psi, phi
     n = 0
@@ -469,53 +519,8 @@ def rightjoyright(self, value):
     # 0 - 32767
     para = int( 100*value/32767)  # in %
     psi=(para/100)*psi_max*d2r
-    
-def calib():
-    print("Kalib")
-    
-    #coords = sm.get_leg_coordinates()
-    #print("vorher calib coords: ",coords)
-    leg_angs = sm.get_leg_angles()
-    print("vorher      leg_angs: ",leg_angs)
-    
-    global arr
-    global rrx, rry, rrz
-    global rfx, rfy, rfz
-    global lfx, lfy, lfz
-    global lrx, lry, lrz
-    global calib_arr, theta_tmp
-    
-    
-    zmax = 0.02 #meter
+   
 
-    # ((rb_q1,rb_q2,rb_q3),(rf_q1,rf_q2,rf_q3),(lf_q1,lf_q2,lf_q3),(lb_q1,lb_q2,lb_q3)s)
-    #sm.set_leg_angles( (int(calib_arr[2])*d2r,int(calib_arr[6])*d2r,int(calib_arr[10])*d2r),(int(calib_arr[1])*d2r,int(calib_arr[5])*d2r,int(calib_arr[9])*d2r),(int(calib_arr[4])*d2r,int(calib_arr[8])*d2r,int(calib_arr[12])*d2r),(int(calib_arr[7])*d2r,int(calib_arr[11])*d2r,int(calib_arr[15])*d2r) ) 
-    #sm.set_leg_angles( [ int(calib_arr[2]),int(calib_arr[6]),int(calib_arr[10]],array[int(calib_arr[1]),int(calib_arr[5]),int(calib_arr[9]],array[int(calib_arr[4]),int(calib_arr[8]),int(calib_arr[12]],array[int(calib_arr[7]),int(calib_arr[11]),int(calib_arr[15]] ) 
-    
-    sm.set_leg_angles( [ [0.0, -1.85, 2.63],[0.0, -1.54, 2.32],[0.0, 1.5, -2.32],[0.0, 1.85, -2.63] ] ) 
-
-    # Get leg coordinates
-    #coords = sm.get_leg_coordinates()
-    #print("nachher calib coords: ",coords)
-
-    # Get leg angles
-    leg_angs = sm.get_leg_angles()
-    print("nachher calib leg_angs: ",leg_angs)
-    
-    theta_tmp = 999
-    
-    '''
-    arr= np.array([ 
-                    coords[0][0], coords[0][1], coords[0][2],
-                    coords[1][0],calib() coords[1][1], coords[1][2],
-                    coords[2][0], coords[2][1], coords[2][2],
-                    coords[3][0], coords[3][1], coords[3][2]
-                    ])
-    '''
-    
-    plotme("d")
-    time.sleep(7)
-    
 
 ### run PS4Controller   
 class MyController(Controller):
@@ -578,24 +583,38 @@ for value in range(0,32767,1000):
     leftjoyup("L3_up", value)
     plotme("ho")
 '''  
-reset()
-plotme("1")
 
 #### walk()
-
-
-#reset()  
-#plotme("rr")
 
 #timer = RepeatTimer(0.3, plotme, args=("",))
 #timer.start()
 #time.sleep(5)
 #timer.cancel()
 
+reset()
+plotme("reset")
+
+'''
 time.sleep(3)
+
 calib()
-#plotme("1")
-#time.sleep(7)
+plotme("calib")
+time.sleep(3)
+
+reset()
+plotme("reset2")
+time.sleep(3)
+
+stand()
+plotme("stand")
+time.sleep(3)
+reset()
+plotme("reset")
+'''
+stand()
+plotme("rest")
+
+time.sleep(17)
 #time.sleep(1000)
 #controller = MyController(interface="/dev/input/js0", connecting_using_ds4drv=False)
 #controller.listen(timeout=60)
