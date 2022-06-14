@@ -157,6 +157,13 @@ def haschangedparams():
     
     return False
 
+
+plot = False
+def timeswitch(msg):
+    global plot
+    plot = not plot
+    
+    
 def plotme(msg):
     global theta, psi, phi, ax, arr
     global theta_tmp, psi_tmp, phi_tmp, arr_tmp
@@ -273,6 +280,8 @@ def reset():
 
     desired_p4_points = arr
     sm.set_absolute_foot_coordinates(desired_p4_points)
+    
+    plotme("reset")
 
 def calib():
     print("Kalib")
@@ -298,6 +307,8 @@ def calib():
                          [int(calib_arr_sm[3])*d2r, int(calib_arr_sm[7])*d2r, -int(calib_arr_sm[11])*d2r] ] ) 
     
     #theta_tmp = 999
+    plotme("calib")
+    
 def stand():
 
     print("Stand")
@@ -316,6 +327,8 @@ def stand():
                          [int(stand_arr_sm[1])*d2r, -int(stand_arr_sm[5])*d2r, int(stand_arr_sm[9])*d2r],
                          [int(stand_arr_sm[0])*d2r, int(stand_arr_sm[4])*d2r, -int(stand_arr_sm[8])*d2r],
                          [int(stand_arr_sm[3])*d2r, int(stand_arr_sm[7])*d2r, -int(stand_arr_sm[11])*d2r] ] ) 
+                         
+    plotme("stand")
   
 def rest():
 
@@ -333,7 +346,9 @@ def rest():
     sm.set_leg_angles( [ [int(rest_arr_sm[2])*d2r, -int(rest_arr_sm[6])*d2r, int(rest_arr_sm[10])*d2r],
                          [int(rest_arr_sm[1])*d2r, -int(rest_arr_sm[5])*d2r, int(rest_arr_sm[9])*d2r],
                          [int(rest_arr_sm[0])*d2r, int(rest_arr_sm[4])*d2r, -int(rest_arr_sm[8])*d2r],
-                         [int(rest_arr_sm[3])*d2r, int(rest_arr_sm[7])*d2r, -int(rest_arr_sm[11])*d2r] ] )   
+                         [int(rest_arr_sm[3])*d2r, int(rest_arr_sm[7])*d2r, -int(rest_arr_sm[11])*d2r] ] )
+                         
+    plotme("rest")
                          
 
 def walkthread(self, servopin, angle, transition):
@@ -417,6 +432,8 @@ def left_arrow_press(self):
                     [rfx ,  rfy,  rfz],
                     [lfx ,  lfy,  lfz],
                     [lrx ,  lry,  lrz] ])
+                    
+    plotme("left_arrow_press")
 
 def right_arrow_press(self):
     global arr
@@ -436,6 +453,8 @@ def right_arrow_press(self):
                     [rfx ,  rfy,  rfz],
                     [lfx ,  lfy,  lfz],
                     [lrx ,  lry,  lrz] ])
+    
+    plotme("right_arrow_press")
 
 def up_arrow_press(self):
     global arr
@@ -455,6 +474,8 @@ def up_arrow_press(self):
                     [rfx ,  rfy,  rfz],
                     [lfx ,  lfy,  lfz],
                     [lrx ,  lry,  lrz] ])
+    
+    plotme("up_arrow_press")
 
 def down_arrow_press(self):
     global arr
@@ -474,6 +495,8 @@ def down_arrow_press(self):
                     [rfx ,  rfy,  rfz],
                     [lfx ,  lfy,  lfz],
                     [lrx ,  lry,  lrz] ])
+    
+    plotme("down_arrow_press")
                     
 def leftjoyleft(self, value):
     global phi
@@ -482,6 +505,8 @@ def leftjoyleft(self, value):
     print(value)
     para = int( 100*value/32767)  # in %
     phi=(para/100)*phi_max*d2r
+    if plot:
+        plotme("leftjoy") 
 
 def leftjoyright(self, value):
     global phi
@@ -489,7 +514,8 @@ def leftjoyright(self, value):
     # 0 - 32767
     para = int( 100*value/32767)  # in %
     phi=(para/100)*phi_max*d2r
-    print("+++++++++++++ ",phi*r2d)
+    if plot:
+        plotme("leftjoy") 
 
 def leftjoyup(self, value):
     global theta
@@ -497,30 +523,35 @@ def leftjoyup(self, value):
     # 0 - 32767
     para = int( 100*value/32767)  # in %
     theta=(para/100)*theta_max*d2r
-    #plotme("") 
+    if plot:
+        plotme("leftjoy") 
 
 def leftjoydown(self, value):
-    global theta
+    global theta, plot
     theta_max=20
     # 0 - 32767
     para = int( 100*value/32767)  # in %
     theta=(para/100)*theta_max*d2r
-
+    if plot:
+        plotme("leftjoy") 
+    
 def rightjoyleft(self, value):
-    global psi
+    global psi, plot
     psi_max=20
     # 0 - 32767
     para = int( 100*value/32767)  # in %
     psi=(para/100)*psi_max*d2r
+    if plot:
+        plotme("leftjoy") 
 
 def rightjoyright(self, value):
-    global psi
+    global psi, plot
     psi_max=20
     # 0 - 32767
     para = int( 100*value/32767)  # in %
     psi=(para/100)*psi_max*d2r
-   
-
+    if plot:
+        plotme("leftjoy") 
 
 ### run PS4Controller   
 class MyController(Controller):
@@ -586,13 +617,15 @@ for value in range(0,32767,1000):
 
 #### walk()
 
-#timer = RepeatTimer(0.3, plotme, args=("",))
-#timer.start()
+    
+timer = RepeatTimer(0.3, timeswitch, args=("",))
+timer.start()
 #time.sleep(5)
 #timer.cancel()
 
 reset()
 plotme("reset")
+#time.sleep(3)
 
 '''
 time.sleep(3)
@@ -611,10 +644,10 @@ time.sleep(3)
 reset()
 plotme("reset")
 '''
-stand()
-plotme("rest")
+#calib()
+#plotme("stand")
 
-time.sleep(17)
+#time.sleep(17)
 #time.sleep(1000)
-#controller = MyController(interface="/dev/input/js0", connecting_using_ds4drv=False)
-#controller.listen(timeout=60)
+controller = MyController(interface="/dev/input/js0", connecting_using_ds4drv=False)
+controller.listen(timeout=60)
