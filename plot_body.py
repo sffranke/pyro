@@ -170,17 +170,25 @@ def plotme(msg):
     print ("==========================")
     print ("in plotme:", msg)
     print ("theta: ", theta,"psi: ", psi, "phi: ",phi)
+    print ("theta_tmp: ", theta_tmp,"psi_tmp: ", psi_tmp, "phi_tmp: ",phi_tmp)
     print ("==========================")
     
     if ( haschangedparams() == False ):
         print (haschangedparams(), "**************** nothing changed ******************")
         return
-        
-    theta_tmp= theta
-    psi_tmp= psi
-    phi_tmp= phi
-    arr_tmp= arr.copy
+
+    desired_p4_points = arr
+    sm.set_absolute_foot_coordinates(desired_p4_points)
     
+    # Set a pitch angle
+    if(theta!=theta_tmp or psi!=psi_tmp or phi!=phi_tmp):
+        sm.set_body_angles(theta=theta,psi=psi,phi=phi)
+        
+        theta_tmp= theta
+        psi_tmp= psi
+        phi_tmp= phi
+
+    arr_tmp= arr.copy
     
     #theta = random.randint(0,20)*d2r
     ax.cla()
@@ -190,18 +198,12 @@ def plotme(msg):
     
     plt.ion() 
     plt.show()
-    
-    ##desired_p4_points = arr
-    ##sm.set_absolute_foot_coordinates(desired_p4_points)
-
-    # Set a pitch angle
-    sm.set_body_angles(theta=theta,psi=psi,phi=phi)
 
     # Get leg coordinates
     coords = sm.get_leg_coordinates()
     
     # Get leg coordinates
-    #print("calib plot: ",coords)
+    print("calib plot: ",coords)
 
 
     # Initialize empty list top hold line objects
@@ -284,7 +286,7 @@ def reset():
     plotme("reset")
 
 def calib():
-    print("Kalib")
+    print("xxxxxKalib")
     
     global calib_arr
     global theta
@@ -495,7 +497,7 @@ def down_arrow_press(self):
                     [rfx ,  rfy,  rfz],
                     [lfx ,  lfy,  lfz],
                     [lrx ,  lry,  lrz] ])
-    
+    #print (arr)
     plotme("down_arrow_press")
                     
 def leftjoyleft(self, value):
@@ -618,7 +620,7 @@ for value in range(0,32767,1000):
 #### walk()
 
     
-timer = RepeatTimer(0.3, timeswitch, args=("",))
+timer = RepeatTimer(0.5, timeswitch, args=("",))
 timer.start()
 #time.sleep(5)
 #timer.cancel()
