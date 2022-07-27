@@ -7,20 +7,13 @@ import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d.axes3d as p3
 import matplotlib.animation as animation
 import configparser
+import time
 from math import pi
 from spot_micro_kinematics_python.spot_micro_stick_figure import SpotMicroStickFigure
 from spot_micro_kinematics_python.utilities import spot_micro_kinematics as smk
 
 from pyPS4Controller.controller import Controller
 from Classes.TheThreads import MyThread
-
-import time
-from threading import Timer
-
-class RepeatTimer(Timer):
-    def run(self):
-        while not self.finished.wait(self.interval):
-            self.function(*self.args, **self.kwargs)
 
 
 configfile_name = "./config.ini"
@@ -31,17 +24,7 @@ with open(configfile_name) as f:
     config = configparser.RawConfigParser(allow_no_value=True)
     config.readfp(io.StringIO(sample_config))
     #parser.read_file(io.StringIO(sample_config))
-    
-    '''
-    # List all contents
-    print("List all contents")
-    for section in config.sections():
-        print("Section: %s" % section)
-        for options in config.options(section):
-            print("x %s:::%s:::%s" % (options,
-                                      config.get(section, options),
-                                      str(type(options))))
-    '''
+
 
     Coxa_LF_center_pwm= int(config.get("LF", "Coxa-center")) +int(config.get("LF", "Coxa-center-dif"))
     Coxa_LF_length = float(config.get("LF", "Coxa-length"))
@@ -88,14 +71,7 @@ fig = plt.figure()
 Conf_maxheight = float(config.get("GENERAL", "maxheight"))
 sm = SpotMicroStickFigure(x=0,y=Conf_maxheight,z=0, theta=00*d2r)
 
-# Define absolute position for the legs
-'''
-        self.hip_length = 0.03
-        self.upper_leg_length = 0.042
-        self.lower_leg_length = 0.055
-        self.body_width = 0.08
-        self.body_length = 0.118
-'''
+
 l = sm.body_length
 w = sm.body_width
 l1 = sm.hip_length
@@ -142,6 +118,8 @@ ax.set_xlim3d([-0.2, 0.2])
 ax.set_zlim3d([0, 0.4])
 ax.set_ylim3d([0.2,-0.2])
 '''
+
+running = False
 desired_p4_points = arr
 sm.set_absolute_foot_coordinates(desired_p4_points)
 
@@ -158,13 +136,9 @@ def haschangedparams():
     return False
 
 
-plot = False
-def timeswitch(msg):
-    global plot
-    plot = not plot
-    
-    
 def plotme(msg):
+    global running
+    running = True
     global theta, psi, phi, ax, arr
     global theta_tmp, psi_tmp, phi_tmp, arr_tmp
     print ("==========================")
@@ -174,20 +148,18 @@ def plotme(msg):
     print ("==========================")
     
     if ( haschangedparams() == False ):
+        running = False
         print (haschangedparams(), "**************** nothing changed ******************")
         return
 
-    desired_p4_points = arr
-    sm.set_absolute_foot_coordinates(desired_p4_points)
+    #desired_p4_points = arr
+    #sm.set_absolute_foot_coordinates(desired_p4_points)
     
-    # Set a pitch angle
-    if(theta!=theta_tmp or psi!=psi_tmp or phi!=phi_tmp):
-        sm.set_body_angles(theta=theta,psi=psi,phi=phi)
+    #sm.set_body_angles(theta=theta,psi=psi,phi=phi)
         
-        theta_tmp= theta
-        psi_tmp= psi
-        phi_tmp= phi
-
+    theta_tmp= theta
+    psi_tmp= psi
+    phi_tmp= phi
     arr_tmp= arr.copy
     
     #theta = random.randint(0,20)*d2r
@@ -203,7 +175,7 @@ def plotme(msg):
     coords = sm.get_leg_coordinates()
     
     # Get leg coordinates
-    print("calib plot: ",coords)
+    #print("calib plot: ",coords)
 
 
     # Initialize empty list top hold line objects
@@ -224,7 +196,6 @@ def plotme(msg):
         z_vals = [coords[ind][0][2], coords[ind+1][0][2]]
         lines.append(ax.plot(x_vals,z_vals,y_vals,color='k')[0])
 
-
     # Plot color order for leg links: (hip, upper leg, lower leg)
     plt_colors = ['r','c','b']
     for leg in coords:
@@ -239,7 +210,8 @@ def plotme(msg):
 
     #leg_angs = sm.get_leg_angles()
     #print("leg_angs: ",leg_angs)
-    plt.pause(0.0000001)     
+    plt.pause(0.01)
+    running = False
     
 
 def reset():
@@ -274,11 +246,13 @@ def reset():
     theta= 0*d2r
     psi= 0*d2r
     phi= 0*d2r
+    
+    sm.set_body_angles(theta=theta,psi=psi,phi=phi)
 
     arr= np.array([ [rrx,   rry,  rrz],
-		    [rfx ,  rfy,  rfz],
-		    [lfx ,  lfy,  lfz],
-            [lrx ,  lry,  lrz] ])
+		     [rfx ,  rfy,  rfz],
+		     [lfx ,  lfy,  lfz],
+                    [lrx ,  lry,  lrz] ])
 
     desired_p4_points = arr
     sm.set_absolute_foot_coordinates(desired_p4_points)
@@ -286,7 +260,6 @@ def reset():
     plotme("reset")
 
 def calib():
-    print("xxxxxKalib")
     
     global calib_arr
     global theta
@@ -295,6 +268,8 @@ def calib():
     theta = 0
     psi = 0
     phi = 0
+    
+    sm.set_body_angles(theta=theta,psi=psi,phi=phi)
     
     calib_arr_sm = [int(i) +1 for i in calib_arr]
     
@@ -314,6 +289,12 @@ def calib():
 def stand():
 
     print("Stand")
+    global theta
+    global psi
+    global phi
+    theta = 0
+    psi = 0
+    phi = 0
     
     global balance_arr
     
@@ -434,6 +415,9 @@ def left_arrow_press(self):
                     [rfx ,  rfy,  rfz],
                     [lfx ,  lfy,  lfz],
                     [lrx ,  lry,  lrz] ])
+    
+    desired_p4_points = arr
+    sm.set_absolute_foot_coordinates(desired_p4_points)
                     
     plotme("left_arrow_press")
 
@@ -455,7 +439,10 @@ def right_arrow_press(self):
                     [rfx ,  rfy,  rfz],
                     [lfx ,  lfy,  lfz],
                     [lrx ,  lry,  lrz] ])
-    
+
+    desired_p4_points = arr
+    sm.set_absolute_foot_coordinates(desired_p4_points)
+        
     plotme("right_arrow_press")
 
 def up_arrow_press(self):
@@ -476,6 +463,9 @@ def up_arrow_press(self):
                     [rfx ,  rfy,  rfz],
                     [lfx ,  lfy,  lfz],
                     [lrx ,  lry,  lrz] ])
+                    
+    desired_p4_points = arr
+    sm.set_absolute_foot_coordinates(desired_p4_points)
     
     plotme("up_arrow_press")
 
@@ -497,63 +487,90 @@ def down_arrow_press(self):
                     [rfx ,  rfy,  rfz],
                     [lfx ,  lfy,  lfz],
                     [lrx ,  lry,  lrz] ])
-    #print (arr)
-    plotme("down_arrow_press")
                     
+    desired_p4_points = arr
+    sm.set_absolute_foot_coordinates(desired_p4_points)
+    
+    plotme("down_arrow_press")
+              
 def leftjoyleft(self, value):
+    global running
     global phi
-    phi_max=10
-    # 0 - 32767 
-    print(value)
-    para = int( 100*value/32767)  # in %
-    phi=(para/100)*phi_max*d2r
-    if plot:
-        plotme("leftjoy") 
+    if running == False:
+        phi_max=10
+        # 0 - 32767 
+
+        para = int( 100*value/32767/2)  # in %
+        if (para %100 == 0):
+            phi=(para/100)*phi_max*d2r
+   
+            sm.set_body_angles(theta=theta,psi=psi,phi=phi)
+            plotme("leftjoyleft") 
+
 
 def leftjoyright(self, value):
+    global running
     global phi
-    phi_max=10
-    # 0 - 32767
-    para = int( 100*value/32767)  # in %
-    phi=(para/100)*phi_max*d2r
-    if plot:
-        plotme("leftjoy") 
+    if running == False:
+        phi_max=10
+        # 0 - 32767
+        para = int( 100*value/32767/2)  # in %
+        if (para %100 == 0):
+            phi=(para/100)*phi_max*d2r
+   
+            sm.set_body_angles(theta=theta,psi=psi,phi=phi)
+            plotme("leftjoyright") 
 
 def leftjoyup(self, value):
+    global running
     global theta
-    theta_max=20
-    # 0 - 32767
-    para = int( 100*value/32767)  # in %
-    theta=(para/100)*theta_max*d2r
-    if plot:
-        plotme("leftjoy") 
+    if running == False:
+        theta_max=20
+        # 0 - 32767
+        para = int( 100*value/32767/2)  # in %
+        if (para %10 == 0):
+            theta=(para/100)*theta_max*d2r
+    
+            sm.set_body_angles(theta=theta,psi=psi,phi=phi)
+            plotme("leftjoyup") 
 
 def leftjoydown(self, value):
     global theta, plot
-    theta_max=20
-    # 0 - 32767
-    para = int( 100*value/32767)  # in %
-    theta=(para/100)*theta_max*d2r
-    if plot:
-        plotme("leftjoy") 
+    global running
+    if running == False:
+        theta_max=20
+        # 0 - 32767
+        para = int( 100*value/32767/2)  # in %
+        if (para %10 == 0):
+            theta=(para/100)*theta_max*d2r
+    
+            sm.set_body_angles(theta=theta,psi=psi,phi=phi)
+            plotme("leftjoydown") 
+
     
 def rightjoyleft(self, value):
     global psi, plot
-    psi_max=20
-    # 0 - 32767
-    para = int( 100*value/32767)  # in %
-    psi=(para/100)*psi_max*d2r
-    if plot:
-        plotme("leftjoy") 
+    global running
+    if running == False:
+        psi_max=20
+        # 0 - 32767
+        para = int( 100*value/32767/2)  # in %
+        if (para %10 == 0):
+            psi=(para/10)*psi_max*d2r
+            sm.set_body_angles(theta=theta,psi=psi,phi=phi)
+            plotme("rightjoyleft") 
 
 def rightjoyright(self, value):
     global psi, plot
-    psi_max=20
-    # 0 - 32767
-    para = int( 100*value/32767)  # in %
-    psi=(para/100)*psi_max*d2r
-    if plot:
-        plotme("leftjoy") 
+    global running    
+    if running == False:
+        psi_max=20
+        # 0 - 32767
+        para = int( 100*value/32767/2)  # in %
+        if (para %10 == 0):
+            psi=(para/10)*psi_max*d2r
+            sm.set_body_angles(theta=theta,psi=psi,phi=phi)
+            plotme("rightjoyright") 
 
 ### run PS4Controller   
 class MyController(Controller):
@@ -595,18 +612,19 @@ class MyController(Controller):
         rightjoyright("RL3_right", value)
         
     def on_options_press(self):
-        #timer.cancel()
         calib()
+        #timer.cancel()
         
-    '''
+        
+    
     def on_x_press(self):
         print("on_x_Press")
-        test()
+        walk()
         
     def on_triangle_press(self):
         print("on_triangle_press")
-        initialize()
-    '''
+        stand()
+    
 
 #plotme("hi")
 '''
@@ -619,9 +637,10 @@ for value in range(0,32767,1000):
 
 #### walk()
 
-    
+'''    
 timer = RepeatTimer(0.5, timeswitch, args=("",))
 timer.start()
+'''
 #time.sleep(5)
 #timer.cancel()
 
