@@ -5,6 +5,7 @@ I have replicated some four-legged robot projects and even with good documentati
 I was able to rebuild these two projects very well and I learned a lot.  
 https://github.com/PetoiCamp/OpenCat  
 https://github.com/mike4192/spotMicro  
+https://github.com/mike4192/spot_micro_kinematics_python.git
 
 Furthermore, I decided to work with hobby mini servos like MG92B. They are affordable, sufficient as proof of concept, and if everything goes well you can still realize a big dog.
 
@@ -39,5 +40,7 @@ sudo pip3 install configparser
 
 sudo pip3 install matplotlib
 
-sudo apt-get install libatlas-base-dev
+sudo apt-get install libatlas-base-dev  
+
+git clone git@github.com:sffranke/spot_micro_kinematics_python.git
 
