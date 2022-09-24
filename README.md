@@ -38,7 +38,7 @@ sudo pip3 install configparser
 
 #sudo apt install git  
 
-sudo pip3 install matplotlib
+sudo pip3 install matplotlib==3.5.2 #recent version shows just a white emoty window  
 
 sudo apt-get install libatlas-base-dev  
 
