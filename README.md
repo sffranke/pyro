@@ -22,11 +22,17 @@ pairable on
 scan on  
 scan off  
 pair A4:AE:11:DE:4E:BB  
-trust A4:AE:11:DE:4E:BB  
+trust A4:AE:11:DE:4E:BB 
+
+wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-armv7l.sh  
+sudo /bin/bash Miniconda3-latest-Linux-armv7l.sh  
+conda create -n env106 python==3.10.6  
+conda acivate enc3106  
 
 /home/pi/.conda/envs/env3106/bin/pip install python3-pip  
 /home/pi/.conda/envs/env3106/bin/pip install python3-numpy  
-/home/pi/.conda/envs/env3106/bin/pip install adafruit-pca9685    
+/home/pi/.conda/envs/env3106/bin/pip install adafruit-pca9685
+/home/pi/.conda/envs/env3106/bin/pip install adafruit-circuitpython-servokit
 /home/pi/.conda/envs/env3106/bin/pip install pyPS4Controller  
 /home/pi/.conda/envs/env3106/bin/pip install urdfpy  
 sudo apt install i2c-tools  
