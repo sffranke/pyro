@@ -24,18 +24,18 @@ scan off
 pair A4:AE:11:DE:4E:BB  
 trust A4:AE:11:DE:4E:BB  
 
-#sudo apt install python3-pip  
-#sudo apt install python3-numpy
-sudo pip3 install adafruit-pca9685  
-sudo pip3 install pyPS4Controller  
+/home/pi/.conda/envs/env3106/bin/pip install python3-pip  
+/home/pi/.conda/envs/env3106/bin/pip install python3-numpy  
+/home/pi/.conda/envs/env3106/bin/pip install adafruit-pca9685    
+/home/pi/.conda/envs/env3106/bin/pip install pyPS4Controller  
+/home/pi/.conda/envs/env3106/bin/pip install urdfpy  
 sudo apt install i2c-tools  
-
 sudo raspi-config -> enable interfacing, i2c  
 sudo chown :i2c /dev/i2c-1   
 sudo chmod g+rw /dev/i2c-1 
 
-sudo pip3 install configparser  
-
+#su+do apt install i2c-tools   install configparser  
 #sudo apt install git  
-git clone git@github.com:sffranke/spot_micro_kinematics_python.git
+# later  
+#git clone git@github.com:sffranke/spot_micro_kinematics_python.git  
 
