@@ -42,6 +42,6 @@ sudo chmod g+rw /dev/i2c-1
 
 #su+do apt install i2c-tools   install configparser  
 #sudo apt install git  
-# later  
+#later  
 #git clone git@github.com:sffranke/spot_micro_kinematics_python.git  
-
+ mtc
