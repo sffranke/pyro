@@ -44,4 +44,8 @@ sudo chmod g+rw /dev/i2c-1
 #sudo apt install git  
 #later  
 #git clone git@github.com:sffranke/spot_micro_kinematics_python.git  
- mtc
+
+Servos:  
+PDI-HV5523MG 23KG High Precision Metal Gear Digital HV  
+Operating Speed (8.4V): 0.16 sec/60° 
+Maximum pulse width: 500-2500us  
