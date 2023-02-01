@@ -5,7 +5,6 @@ I have replicated some four-legged robot projects and even with good documentati
 I was able to rebuild these two projects very well and I learned a lot.  
 https://github.com/PetoiCamp/OpenCat  
 https://github.com/mike4192/spotMicro  
-https://github.com/mike4192/spot_micro_kinematics_python.git
 
 Furthermore, I decided to work with hobby mini servos like MG92B for the small prototype. They are affordable, sufficient as proof of concept, and if everything goes well you can still realize a big dog.
 The big version uses PDI-HV5523MG 23KG servos.  
@@ -50,7 +49,7 @@ Maximum pulse width: 500-2500us
 Basic movement, static, no inverse kinematic yet 
 
 *Controlling with PS4 Constroller*  
-coming soon  
+coming soon 
 ----  
 *Inverse Kinematics*   
 Moves using the great package from Mike (https://github.com/mike4192/spotMicro):  
