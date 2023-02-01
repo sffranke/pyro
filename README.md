@@ -50,13 +50,12 @@ Basic movement, static, no inverse kinematic yet
 
 *Controlling with PS4 Constroller*  
 coming soon 
--
+
 *Inverse Kinematics*   
 Moves using the great package from Mike (https://github.com/mike4192/spotMicro):  
 git clone git@github.com:sffranke/spot_micro_kinematics_python.git  
 coming soon 
--
+
 *Walking*   
 coming not so soon :-)
--
 
