@@ -7,7 +7,8 @@ https://github.com/PetoiCamp/OpenCat
 https://github.com/mike4192/spotMicro  
 https://github.com/mike4192/spot_micro_kinematics_python.git
 
-Furthermore, I decided to work with hobby mini servos like MG92B. They are affordable, sufficient as proof of concept, and if everything goes well you can still realize a big dog.
+Furthermore, I decided to work with hobby mini servos like MG92B for the small prototype. They are affordable, sufficient as proof of concept, and if everything goes well you can still realize a big dog.
+The big version uses PDI-HV5523MG 23KG servos.  
 
 *setup raspian 2022-04-04-raspios-bullseye-armhf.img.xz*  
 apt-get update; apt-get upgrade  
@@ -40,12 +41,17 @@ sudo raspi-config -> enable interfacing, i2c
 sudo chown :i2c /dev/i2c-1   
 sudo chmod g+rw /dev/i2c-1 
 
-#su+do apt install i2c-tools   install configparser  
-#sudo apt install git  
-#later  
-#git clone git@github.com:sffranke/spot_micro_kinematics_python.git  
+su+do apt install i2c-tools   
+install configparser  
+sudo apt install git  
+git clone git@github.com:sffranke/spot_micro_kinematics_python.git  
 
 Servos:  
 PDI-HV5523MG 23KG High Precision Metal Gear Digital HV  
 Operating Speed (8.4V): 0.16 sec/60° 
 Maximum pulse width: 500-2500us  
+
+Version_Step_1.py:  
+Basic movement, static, no inverse kinematic yet  
+
+
