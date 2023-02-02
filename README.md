@@ -50,10 +50,15 @@ Basic movement, static, no inverse kinematic yet
 Implemented rest, sit, calibate and stand/balance for testing the servo control and motion.  
 Done.
 
-*Inverse Kinematics*   
+*Version_Step_2.py:*
+Inverse Kinematics     
 Moves using the great package from Mike (https://github.com/mike4192/spotMicro):  
 git clone git@github.com:sffranke/spot_micro_kinematics_python.git  
-In progress.
+In progress.  
+
+*Add MPU6050*
+For self balancing  
+coming soon  
 
 *Controlling with PS4 Constroller*  
 coming soon  
