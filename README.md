@@ -47,14 +47,15 @@ Maximum pulse width: 500-2500us
 
 *Version_Step_1.py:*  
 Basic movement, static, no inverse kinematic yet 
-
-*Controlling with PS4 Constroller*  
-coming soon 
+Implemented rest, sit, calibate and stand/balance for testing the servo control and motion.  
 
 *Inverse Kinematics*   
 Moves using the great package from Mike (https://github.com/mike4192/spotMicro):  
 git clone git@github.com:sffranke/spot_micro_kinematics_python.git  
 coming soon 
+
+*Controlling with PS4 Constroller*  
+coming soon  
 
 *Walking*   
 coming not so soon :-)
