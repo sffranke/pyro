@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 import time
 import busio
 import threading
@@ -31,21 +32,48 @@ def init():
     kit.servo[9].pin = 10
     kit.servo[10].pin = 6
     kit.servo[11].pin = 14
+    
+    kit.servo[0].maxrange =  20
+    kit.servo[0].minrange = -20
+    kit.servo[1].maxrange =  20
+    kit.servo[1].minrange = -20
+    kit.servo[2].maxrange =  20
+    kit.servo[2].minrange = -20
+    kit.servo[3].maxrange =  20
+    kit.servo[3].minrange = -20
+    
+    kit.servo[4].maxrange =  80
+    kit.servo[4].minrange = -45
+    kit.servo[5].maxrange =  80
+    kit.servo[5].minrange = -45
+    kit.servo[6].maxrange =  80
+    kit.servo[6].minrange = -45
+    kit.servo[7].maxrange =  80
+    kit.servo[7].minrange = -45
+    
+    kit.servo[8].maxrange =  55
+    kit.servo[8].minrange = -55
+    kit.servo[9].maxrange =  55
+    kit.servo[9].minrange = -55
+    kit.servo[10].maxrange = 55
+    kit.servo[10].minrange = -55
+    kit.servo[11].maxrange =  55
+    kit.servo[11].minrange = -55
         
-    kit.servo[0].rotationdirection  = 1   # LF C
-    kit.servo[1].rotationdirection  = - 1 # RF C
-    kit.servo[2].rotationdirection  = 1   # RR C
-    kit.servo[3].rotationdirection = -1   # LR C
+    kit.servo[0].rotationdirection  =  1  # LF C
+    kit.servo[1].rotationdirection  = -1  # RF C
+    kit.servo[2].rotationdirection  =  1  # RR C
+    kit.servo[3].rotationdirection  = -1  # LR C
         
-    kit.servo[4].rotationdirection  = 1   # LF F
+    kit.servo[4].rotationdirection  =  1  # LF F
     kit.servo[5].rotationdirection  = -1  # RF F
     kit.servo[6].rotationdirection  = -1  # RR F
-    kit.servo[7].rotationdirection = 1    # LR F
+    kit.servo[7].rotationdirection  =  1  # LR F
         
-    kit.servo[8].rotationdirection  = 1   # LF T
-    kit.servo[9].rotationdirection = -1   # RF T
-    kit.servo[10].rotationdirection  = -1 # RR T
-    kit.servo[11].rotationdirection = 1   # LR T
+    kit.servo[8].rotationdirection   =  1  # LF T
+    kit.servo[9].rotationdirection   = -1  # RF T
+    kit.servo[10].rotationdirection  = -1  # RR T
+    kit.servo[11].rotationdirection  =  1  # LR T
         
     kit.servo[0].correction = -10
     kit.servo[1].correction = -7
@@ -91,7 +119,20 @@ def startthreads(threads,caller):
         if caller == "initialize":
             time.sleep(1)
         threads[i].start()
-    
+  
+def checkrange(servopin, angle):  
+   
+    if angle>kit.servo[servopin].maxrange:
+        print ("Range exeeded! ",servopin," ", angle," > ",kit.servo[servopin].maxrange)
+        release()
+        os._exit(1)
+    if angle<kit.servo[servopin].minrange:
+        print ("Below range! ",servopin," ", angle," > ",kit.servo[servopin].minrange)
+        release()
+        os._exit(1)
+            
+    return True
+  
 def initialize():
     threads = []
     #kit.status = "init"
@@ -114,12 +155,28 @@ def rest():
         print ("rest array: ",i, " angle: ", kit.rest[i], "° "," Servopin: ",kit.servo[i].pin)
       
         pin = kit.servo[i].pin
+        checkrange(i, kit.rest[i])
         ang = 90 + kit.rest[i] * kit.servo[i].rotationdirection + kit.servo[i].correction
         t = threading.Thread(target=move, args=(pin, ang, 1, 0.05))
         
         threads.append(t)
     startthreads(threads, "rest")
 
+def sit():
+    threads = []
+    #kit.status = "rest"
+    for i in range(0, 12):
+        print ("rest array: ",i, " angle: ", kit.sit[i], "° "," Servopin: ",kit.servo[i].pin)
+      
+        pin = kit.servo[i].pin
+        checkrange(i, kit.sit[i])
+        ang = 90 + kit.sit[i] * kit.servo[i].rotationdirection + kit.servo[i].correction
+        t = threading.Thread(target=move, args=(pin, ang, 1, 0.05))
+        
+        threads.append(t)
+    startthreads(threads, "sit")
+    
+    
 def calib():
     threads = []
     #kit.status = "calib"
@@ -127,6 +184,7 @@ def calib():
         print ("calib array: ",i, " angle: ", kit.calib[i], "° "," Servopin: ",kit.servo[i].pin)
       
         pin = kit.servo[i].pin
+        checkrange(i, kit.calib[i])
         ang = 90 + kit.calib[i] * kit.servo[i].rotationdirection + kit.servo[i].correction
         t = threading.Thread(target=move, args=(pin, ang, 1, 0.05))
         
@@ -140,6 +198,7 @@ def balance():
         print ("calib array: ",i, " angle: ", kit.balance[i], "° "," Servopin: ",kit.servo[i].pin)
       
         pin = kit.servo[i].pin
+        checkrange(i, kit.balance[i])
         ang = 90 + kit.balance[i] * kit.servo[i].rotationdirection + kit.servo[i].correction
         t = threading.Thread(target=move, args=(pin, ang, 1, 0.05))
         
@@ -180,7 +239,7 @@ def move(servopin, angle, transition, delay):
                                   change_in_value=changeinVal,
                                   duration=transspeed)
 
-            print ("-> Angle: ",angle)
+            #print ("-> Angle: ",angle)
             time.sleep(delay)
             kit.servo[servopin].angle = angle
     
@@ -192,7 +251,7 @@ if __name__ == '__main__':
     time.sleep(3)
     calib()
     time.sleep(3)
-    
+    sit()
     time.sleep(3)
     balance()
     time.sleep(3)
