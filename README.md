@@ -10,6 +10,7 @@ Furthermore, I decided to work with hobby mini servos like MG92B for the small p
 The big version uses PDI-HV5523MG 23KG servos.  
 
 *setup raspian 2022-04-04-raspios-bullseye-armhf.img.xz*  
+```
 sudo apt-get update; sudo apt-get upgrade  
 sudo apt install pi-bluetooth  
 
@@ -39,6 +40,7 @@ sudo chmod g+rw /dev/i2c-1
   
 install configparser  
 sudo apt install git  
+```
 
 Servos:  
 PDI-HV5523MG 23KG High Precision Metal Gear Digital HV  
