@@ -54,13 +54,14 @@ Done.
 Inverse Kinematics     
 Moves using the great package from Mike (https://github.com/mike4192/spotMicro):  
 git clone git@github.com:sffranke/spot_micro_kinematics_python.git  
-In progress.  
+Done.  
+
+*Version_Step_3.py:*  
+Add PS4 Controller for posing.  
+In progress.
 
 *Add MPU6050*
 For self balancing  
-coming soon  
-
-*Controlling with PS4 Constroller*  
 coming soon  
 
 *Walking*   
