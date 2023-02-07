@@ -1,6 +1,6 @@
 **PYRO**
 
-I have replicated some four-legged robot projects and even with good documentation it is often not possible to follow the installation. There are extreme dependencies on the OS and many software packages, especially when using ROS, which even with a successful build can make long-term operation questionable.  Therefore my attempt to build a robot based on Python and other elementary packages. 
+I have replicated some four-legged robot projects and even with good documentation it is often not possible to follow the installation. There are extreme dependencies on the OS and many software packages, especially when using ROS, which even with a successful build can make long-term operation questionable.  Therefore my attempt to build a robot based on a Pi 4, python and other elementary packages. 
 
 I was able to rebuild these two projects very well and I learned a lot.  
 https://github.com/PetoiCamp/OpenCat  
