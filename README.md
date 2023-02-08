@@ -47,6 +47,8 @@ PDI-HV5523MG 23KG High Precision Metal Gear Digital HV
 Operating Speed (8.4V): 0.16 sec/60° 
 Maximum pulse width: 500-2500us  
 
+To move the motors to a defined starting position at the beginning (init), I control the motors one after the other, because I am still working with a laboratory power supply, which I cannot load highly. Later, the power supply will be taken over by a Lipo, which can deliver the necessary high currents, then the motors will be controlled simultaneously.  
+
 *Version_Step_1.py:*  
 Basic movement, static, no inverse kinematic yet 
 Implemented rest, sit, calibate and stand/balance for testing the servo control and motion.  
