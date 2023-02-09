@@ -62,7 +62,20 @@ Done.
 
 *Version_Step_3.py:*  
 Add PS4 Controller for posing.  
-In progress.
+pyro.py c -> calibration pose  
+pyro.py r -> rest or init pose  
+pyro.py b -> stand pose  
+pyro.py i -> sequence of inverse kinematiks poses for testing  
+
+pyro.py without argument runs the PS4 Controller:   
+Press X-Button: rest and exit programm  
+Press Square-Button: rest or stand pose  
+Press Circle-Button: sit or stand pose  
+press Options-Button: calibration pose (LL)  
+Done.
+
+*Add conig file*  
+coming next    
 
 *Add MPU6050*
 For self balancing  
