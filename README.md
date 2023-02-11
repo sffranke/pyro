@@ -74,8 +74,9 @@ Press Circle-Button: sit or stand pose
 press Options-Button: calibration pose (LL)  
 Done.
 
-*Add conig file*  
-coming next    
+*Version_Step_4.py:*  
+Added conig file confg.ini for prpperties and servo parameters.  
+Done.  
 
 *Add MPU6050*
 For self balancing  
