@@ -75,12 +75,13 @@ press Options-Button: calibration pose (LL)
 Done.
 
 *Version_Step_4.py:*  
-Added conig file confg.ini for prpperties and servo parameters.  
+Added conig file confg.ini for properties and servo parameters.  
 Done.  
 
-*Add MPU6050*
-For self balancing  
-coming soon  
+*Version_Step_5.py:*  
+Add MPU6050* for balancing  
+PS4 Buttonon_share sitches MPU Messurement and correction on and off for balancing in pitch axis and roll-axis.  
+In progress  
 
 *Walking*   
 coming not so soon :-)
