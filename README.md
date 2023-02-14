@@ -81,8 +81,8 @@ Done.
 *Version_Step_5.py:*  
 Add MPU6050* for balancing  
 PS4 Buttonon_share sitches MPU Messurement and correction on and off for balancing in pitch axis and roll-axis.  
-In progress  
+Done. Fine tuning later. Needs the Lipo now for balancing.   
 
-*Walking*   
-coming not so soon :-)
+*Walking*  
+In progress, coming not so soon :-)
 
