@@ -28,12 +28,16 @@ conda create -n env106 python==3.10.6
 conda acivate enc3106  
 
 /home/pi/.conda/envs/env3106/bin/pip install python3-pip  
-/home/pi/.conda/envs/env3106/bin/pip install python3-numpy  
-/home/pi/.conda/envs/env3106/bin/pip install adafruit-pca9685  
-/home/pi/.conda/envs/env3106/bin/pip install adafruit-circuitpython-servokit  
-/home/pi/.conda/envs/env3106/bin/pip install adafruit-circuitpython-mpu6050
-/home/pi/.conda/envs/env3106/bin/pip install pyPS4Controller  
-/home/pi/.conda/envs/env3106/bin/pip install urdfpy  
+pip install adafruit-blinka
+pip install python3-numpy  
+pip install adafruit-pca9685  
+pip install adafruit-circuitpython-servokit  
+pip install adafruit-circuitpython-mpu6050
+pip install pyPS4Controller  
+pip install urdfpy  
+pip install pyPS4Controller  
+pip install matplotlib
+
 sudo apt install i2c-tools  
 sudo raspi-config -> enable interfacing, i2c  
 sudo chown :i2c /dev/i2c-1   
