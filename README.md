@@ -23,7 +23,8 @@ trust A4:AE:11:DE:4E:BB
 
 wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-armv7l.sh  
 
-sudo /bin/bash Miniconda3-latest-Linux-armv7l.sh  
+sudo /bin/bash Miniconda3-latest-Linux-armv7l.sh
+source ~/.bashrc
 conda create -n env106 python==3.10.6  
 conda acivate enc3106  
 
